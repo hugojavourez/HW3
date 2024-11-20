@@ -41,7 +41,7 @@ void readCoordinates(const std::string& filename, std::vector<double>& xCoords, 
     file.close();
 }
 
-void cellsVolume(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& volume) {
+void cellVolume(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& volume) {
     int totalPoints = n1 * n2;
 
     // Resize vectors to hold the coordinates
@@ -65,10 +65,10 @@ void cellsVolume(int n1, int n2, std::vector<double>& xCoords, std::vector<doubl
 void faceLength(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& length) {
     int totalPoints = n1 * n2;
 
-    // Resize vectors to hold the coordinates
-    length.resize(totalPoints);
+    // Resize vector to hold the coordinates
+    length.resize(totalPoints-1);
 
-    for (int i = 0; i < totalPoints - n1; i++) {
+    for (int i = 0; i < totalPoints - 1; i++) {
         // Create the face vector
         double A[2] = {xCoords[i] - xCoords[i+1], yCoords[i] - yCoords[i+1]};
 
@@ -77,7 +77,19 @@ void faceLength(int n1, int n2, std::vector<double>& xCoords, std::vector<double
     }
 }
 
-void showGrid()
-{
+void faceNormal(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& xNormal, std::vector<double>& yNormal) {
+    int totalPoints = n1 * n2;
 
+    // Resize vectors to hold the coordinates
+    xNormal.resize(totalPoints-1);
+    yNormal.resize(totalPoints-1);
+
+    for (int i = 0; i < totalPoints - 1; i++) {
+        // Create the normal vector
+        double x = yCoords[i] - yCoords[i+1];
+        double y = - (xCoords[i] - xCoords[i+1]);
+
+        // Normalize the vector
+        xNormal[i] = x/(sqrt(pow(x,2)+pow(y,2)));
+        yNormal[i] = y/(sqrt(pow(x,2)+pow(y,2)));
 }

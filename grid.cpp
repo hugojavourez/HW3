@@ -43,53 +43,121 @@ void readCoordinates(const std::string& filename, std::vector<double>& xCoords, 
 
 void cellVolume(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& volume) {
     int totalPoints = n1 * n2;
+    int totalCells = (n1 - 1) * (n2 - 1);
 
     // Resize vectors to hold the coordinates
-    volume.resize(totalPoints); // totalPoints or less?
+    volume.resize(totalCells);
+
+    // Counter of cells
+    int c = 0;
 
     for (int i = 0; i < totalPoints - n1; i++) {
-        // Create the diagonal vectors
-        double a1 = xCoords[i] - xCoords[i+n1+1], a2 = yCoords[i] - yCoords[i+n1+1];
-        double b1 = xCoords[i+1] - xCoords[i+n1+2], b2 = yCoords[i+1] - yCoords[i+n1+2];
-        double A[2] = {a1, a2};
-        double B[2] = {b1, b2};
+        if ((i + 1) % n2 != 0) {
+            // Create the diagonal vectors
+            double a1 = xCoords[i] - xCoords[i+n1+1], a2 = yCoords[i] - yCoords[i+n1+1];
+            double b1 = xCoords[i+1] - xCoords[i+n1], b2 = yCoords[i+1] - yCoords[i+n1];
+            double A[2] = {a1, a2};
+            double B[2] = {b1, b2};
         
-        // Compute the cross product between the two vectors
-        crossProduct(A,B,volume[i]);
+            // Compute the cross product between the two vectors
+            crossProduct(A,B,volume[i]);
 
-        // Calculate the volume of the i-th cell
-        volume[i] = 0.5*std::abs(volume[i]);
+            // Calculate the volume of the i-th cell
+            volume[c] = 0.5*std::abs(volume[i]);
+
+            c += 1;
+        }
     }
 }
 
 void faceLength(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& length) {
     int totalPoints = n1 * n2;
+    int totalFaces = (n1 - 1) * (2 * n2 - 1);
 
-    // Resize vector to hold the coordinates
-    length.resize(totalPoints-1);
+    // Resize vectors to hold the coordinates
+    length.resize(totalFaces);
 
-    for (int i = 0; i < totalPoints - 1; i++) {
-        // Create the face vector
-        double A[2] = {xCoords[i] - xCoords[i+1], yCoords[i] - yCoords[i+1]};
+    // Counter of faces
+    int f = 0;
 
-        // Calculate the face length of the i-th cell
-        norm(A,length[i]);
+    for (int i = 0; i < n1; i++) {
+        for (int j = 0; j < n2; j++) {
+            // The last point does not have another node to be linked to
+            // And the node that close the layer has no new face (because it was computed when arrived on the layer)
+            if (i + j - 2 != totalPoints || i-1 % n1 != 0) {
+                // Create the face vector
+                double A[2] = {xCoords[i+j] - xCoords[i+j+1], yCoords[i+j] - yCoords[i+j+1]};
+
+                // Calculate the face length of the i-th cell
+                norm(A,length[f]);
+
+                // Going to the next face
+                f += 1;
+            }
+
+            // The last layer of nodes does not have faces pointing to a farther layer of nodes
+            // And the node that close the layer has no new face (because it was computed when arrived on the layer)
+            if (j - 1 != n2 || i-1 % n1 != 0) {
+                // Create the face vector
+                double A[2] = {xCoords[i+j] - xCoords[i+j+n1], yCoords[i+j] - yCoords[i+j+n1]};
+
+                // Calculate the face length of the i-th cell
+                norm(A,length[f]);
+
+                // Going to the next face
+                f += 1;
+            }
+        }
     }
 }
 
 void faceNormal(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& xNormal, std::vector<double>& yNormal) {
     int totalPoints = n1 * n2;
+    int totalFaces = (n1 - 1) * (2 * n2 - 1);
 
     // Resize vectors to hold the coordinates
-    xNormal.resize(totalPoints-1);
-    yNormal.resize(totalPoints-1);
+    xNormal.resize(totalFaces);
+    yNormal.resize(totalFaces);
 
-    for (int i = 0; i < totalPoints - 1; i++) {
-        // Create the normal vector
-        double x = yCoords[i] - yCoords[i+1];
-        double y = - (xCoords[i] - xCoords[i+1]);
+    // Counter of faces
+    int f = 0;
 
-        // Normalize the vector
-        xNormal[i] = x/(sqrt(pow(x,2)+pow(y,2)));
-        yNormal[i] = y/(sqrt(pow(x,2)+pow(y,2)));
+    for (int i = 0; i < n1; i++) {
+        for (int j = 0; j < n2; j++) {
+            // The last point does not have another node to be linked to
+            // And the node that close the layer has no new face (because it was computed when arrived on the layer)
+            if (i + j - 2 != totalPoints || i-1 % n1 != 0) {
+                // Create the normal vector
+                double x = yCoords[i+j] - yCoords[i+j+1];
+                double y = - (xCoords[i+j] - xCoords[i+j+1]);
+
+                // Normalize the vector
+                xNormal[f] = x/(sqrt(pow(x,2)+pow(y,2)));
+                yNormal[f] = y/(sqrt(pow(x,2)+pow(y,2)));
+
+                // Going to the next face
+                f += 1;
+            }
+
+            // The last layer of nodes does not have faces pointing to a farther layer of nodes
+            // And the node that close the layer has no new face (because it was computed when arrived on the layer)
+            if (j - 1 != n2 || i-1 % n1 != 0) {
+                // Create the normal vector
+                double x = yCoords[i+j] - yCoords[i+j+n1];
+                double y = - (xCoords[i+j] - xCoords[i+j+n1]);
+
+                // Normalize the vector
+                xNormal[f] = x/(sqrt(pow(x,2)+pow(y,2)));
+                yNormal[f] = y/(sqrt(pow(x,2)+pow(y,2)));
+
+                // Going to the next face
+                f += 1;
+            }
+        }
+
+    }
+}
+
+void connectivity(int n1, int n2, std::vector<int>& faceNumber, std::vector<int>& cellNumber) {
+    
 }

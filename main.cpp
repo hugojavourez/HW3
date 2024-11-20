@@ -1,4 +1,5 @@
 #include "grid.h"
+#include "solver.h"
 #include "math.h"
 
 #include <iostream>

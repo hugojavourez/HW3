@@ -6,8 +6,17 @@
 #include <vector>
 #include <sstream>
 
-void readCoordinates(const std::string& filename, std::vector<double>& xCoords, std::vector<double>& yCoords, int n1, int n2) {
-
+/**
+* Reads the coordinates from geometry file and stores them in the provided vectors.
+*
+* @param filename The name of the file to read from.
+* @param xCoords A vector to store the x-coordinates.
+* @param yCoords A vector to store the y-coordinates.
+* @param n1 The number of points that forms a loop around the body (called a layer).
+* @param n2 The number of layers.
+*/
+void readCoordinates(const std::string& filename, std::vector<double>& xCoords, std::vector<double>& yCoords, int n1, int n2) {    
+    
     std::ifstream file(filename);
 
     if (!file) {
@@ -42,7 +51,17 @@ void readCoordinates(const std::string& filename, std::vector<double>& xCoords, 
     file.close();
 }
 
+/**
+ * Calculates the volume of each cell in the grid.
+ * 
+ * @param n1 The number of points that forms a loop around the body (called a layer).
+ * @param n2 The number of layers.
+ * @param xCoords A vector containing the x-coordinates.
+ * @param yCoords A vector containing the y-coordinates.
+ * @param volume A vector to store the volume of each cell.
+ */
 void cellVolume(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& volume) {
+    
     int totalPoints = n1 * n2;
     int totalCells = (n1 - 1) * (n2 - 1);
 
@@ -72,6 +91,15 @@ void cellVolume(int n1, int n2, std::vector<double>& xCoords, std::vector<double
     }
 }
 
+/**
+ * Calculates the length of each face in the grid.
+ * 
+ * @param n1 The number of points that forms a loop around the body (called a layer).
+ * @param n2 The number of layers.
+ * @param xCoords A vector containing the x-coordinates.
+ * @param yCoords A vector containing the y-coordinates.
+ * @param length A vector to store the length of each face.
+ */
 void faceLength(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& length) {
     int totalPoints = n1 * n2;
     int totalFaces = (n1 - 1) * (2 * n2 - 1);
@@ -113,6 +141,16 @@ void faceLength(int n1, int n2, std::vector<double>& xCoords, std::vector<double
     }
 }
 
+/**
+ * Calculates the normal vector of each face in the grid.
+ * 
+ * @param n1 The number of points that forms a loop around the body (called a layer).
+ * @param n2 The number of layers.
+ * @param xCoords A vector containing the x-coordinates.
+ * @param yCoords A vector containing the y-coordinates.
+ * @param xNormal A vector to store the x-component of the normal vector of each face.
+ * @param yNormal A vector to store the y-component of the normal vector of each face.
+ */
 void faceNormal(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& xNormal, std::vector<double>& yNormal) {
     int totalPoints = n1 * n2;
     int totalFaces = (n1 - 1) * (2 * n2 - 1);
@@ -160,6 +198,16 @@ void faceNormal(int n1, int n2, std::vector<double>& xCoords, std::vector<double
     }
 }
 
+/**
+ * Determines the connectivity between faces and cells in the grid.
+ * 
+ * @param n1 The number of points that forms a loop around the body (called a layer).
+ * @param n2 The number of layers.
+ * @param faceToCellsLeft A vector to store the cells on the left of each face.
+ * @param faceToCellsRight A vector to store the cells on the right of each face.
+ * @param faceNumber The total number of faces.
+ * @param cellNumber The total number of cells.
+ */
 void connectivity(int n1, int n2, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, int faceNumber, int cellNumber) {
     int totalPoints = n1 * n2;
     faceNumber = (n1 - 1) * (2 * n2 - 1);

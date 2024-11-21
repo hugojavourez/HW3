@@ -7,6 +7,7 @@
 #include <sstream>
 
 void readCoordinates(const std::string& filename, std::vector<double>& xCoords, std::vector<double>& yCoords, int n1, int n2) {
+
     std::ifstream file(filename);
 
     if (!file) {
@@ -183,7 +184,9 @@ void connectivity(int n1, int n2, std::vector<int>& faceToCellsLeft, std::vector
             if (f % (2 * (n1 - 1)) != 1) {
                 faceToCellsRight[f] = f/2;
                 faceToCellsLeft[f] = faceToCellsRight[f] - (n1 - 1);
-            } else {
+            } else
+            // If the face closes a bloc
+            {
                 faceToCellsLeft[f] = (f - 2) / 2;
                 faceToCellsRight[f] = faceToCellsLeft[f] + (n1 - 2);
             }

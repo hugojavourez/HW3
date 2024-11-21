@@ -5,8 +5,26 @@
 #include <iostream>
 #include <vector>
 
+/**
+ * Parameters of the simulation.
+ */
 int n = 9; // Replace with the grid size wanted (9x9, 17x17, etc.)
+double MachNumber = 0.8; // Mach number of the flow
+double AoA = 0.0; // Angle of attack in degrees
 
+/**
+ * Physical properties of the flow.
+ */
+double rhoInf = 1.225; // Density at infinity
+double pInf = 101325.0; // Pressure at infinity
+double gamma = 1.4; // Heat capacity ratio
+double R = 287.0; // Specific gas constant
+double TInf = 288.15; // Temperature at infinity
+double fluidProperties[5] = {rhoInf, pInf, gamma, R, TInf};
+
+/**
+ * Main function.
+ */
 int main() {
 
     std::string filename = std::to_string(n) + "x" + std::to_string(n) + ".txt"; // Name of the geometry file to read from
@@ -14,6 +32,23 @@ int main() {
 
     // Read the coordinates from the file
     readCoordinates(filename, n, xCoords, yCoords);
+
+    // Calculate the volume of each cell
+    std::vector<double> volume;
+    cellVolume(n, xCoords, yCoords, volume);
+
+    // Calculate the length of each face
+    std::vector<double> length;
+    faceLength(n, xCoords, yCoords, length);
+
+    // Calculate the normal vector of each face
+    std::vector<double> xNormal, yNormal;
+    faceNormal(n, xCoords, yCoords, xNormal, yNormal);
+
+    // Determine the connectivity between faces and cells
+    std::vector<int> faceToCellsLeft, faceToCellsRight;
+    int faceNumber, cellNumber;
+    connectivity(n, faceToCellsLeft, faceToCellsRight, faceNumber, cellNumber);
 
     return 0;
 }

@@ -52,6 +52,62 @@ void readCoordinates(const std::string& filename, const int n, std::vector<doubl
 }
 
 /**
+ * Determines the connectivity between faces and cells in the grid.
+ * 
+ * @param n The grid size (nxn).
+ * @param faceToCellsLeft A vector to store the cells on the left of each face.
+ * @param faceToCellsRight A vector to store the cells on the right of each face.
+ * @param faceNumber The total number of faces.
+ * @param cellNumber The total number of cells.
+ */
+void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, int faceNumber, int cellNumber) {
+    int totalPoints = n * n;
+    faceNumber = (n - 1) * (2 * n - 1);
+    cellNumber = pow((n - 1),2);
+
+    // Resize vector to hold the faces
+    faceToCellsLeft.resize(faceNumber);
+    faceToCellsRight.resize(faceNumber);
+
+    // Number of the cell touching the first face of the last layer
+    int lastFaces = n * (n - 2);
+
+    for (int f = 0; f < faceNumber; f++) {
+        // If the face studied is neither on the first nor last layer
+        if (f > 2 * (n - 1) && f < faceNumber - n) {
+            // If the face make the junction between two layers and is not the one that close a bloc
+            if (f % 2 == 1 && f % (2 * (n - 1)) != 1) {
+                faceToCellsLeft[f] = (f - 1) / 2;
+                faceToCellsRight[f] = faceToCellsLeft[f] - 1;
+            } else
+            // If the face is on a layer and is not the one that close a bloc
+            if (f % (2 * (n - 1)) != 1) {
+                faceToCellsRight[f] = f/2;
+                faceToCellsLeft[f] = faceToCellsRight[f] - (n - 1);
+            } else
+            // If the face closes a bloc
+            {
+                faceToCellsLeft[f] = (f - 2) / 2;
+                faceToCellsRight[f] = faceToCellsLeft[f] + (n - 2);
+            }
+        } else 
+        // If the face studied is on the first layer
+        if (f < faceNumber - n) {
+            faceToCellsLeft[f] = - 1;
+            faceToCellsRight[f] = (f + 1) / 2;
+        } else
+        // If the face studied is on the last layer
+        {
+            faceToCellsLeft[f] = lastFaces;
+            faceToCellsRight[f] = - 1;
+
+            // Going to the next face on the last layer
+            lastFaces += 1;
+        }
+    }
+}
+
+/**
  * Calculates the volume of each cell in the grid.
  * 
  * @param n The grid size (nxn).
@@ -59,7 +115,7 @@ void readCoordinates(const std::string& filename, const int n, std::vector<doubl
  * @param yCoords A vector containing the y-coordinates.
  * @param volume A vector to store the volume of each cell.
  */
-void cellVolume(int n, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& volume) {
+void cellVolume(const int n, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& volume) {
     
     int totalPoints = n * n;
     int totalCells = pow((n - 1),2);
@@ -98,7 +154,7 @@ void cellVolume(int n, std::vector<double>& xCoords, std::vector<double>& yCoord
  * @param yCoords A vector containing the y-coordinates.
  * @param length A vector to store the length of each face.
  */
-void faceLength(int n, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& length) {
+void faceLength(const int n, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& length) {
     int totalPoints = n * n;
     int totalFaces = (n - 1) * (2 * n - 1);
 
@@ -148,7 +204,7 @@ void faceLength(int n, std::vector<double>& xCoords, std::vector<double>& yCoord
  * @param xNormal A vector to store the x-component of the normal vector of each face.
  * @param yNormal A vector to store the y-component of the normal vector of each face.
  */
-void faceNormal(int n, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& xNormal, std::vector<double>& yNormal) {
+void faceNormal(const int n, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& xNormal, std::vector<double>& yNormal) {
     int totalPoints = n * n;
     int totalFaces = (n - 1) * (2 * n - 1);
 
@@ -196,57 +252,48 @@ void faceNormal(int n, std::vector<double>& xCoords, std::vector<double>& yCoord
 }
 
 /**
- * Determines the connectivity between faces and cells in the grid.
+ * Determines the type of each face and cell in the grid.
+ * The number of ghost layers (for the boundary conditions) is equal to 2.
  * 
  * @param n The grid size (nxn).
- * @param faceToCellsLeft A vector to store the cells on the left of each face.
- * @param faceToCellsRight A vector to store the cells on the right of each face.
- * @param faceNumber The total number of faces.
- * @param cellNumber The total number of cells.
+ * @param faceType A vector to store the type of each face.
+ * @param cellType A vector to store the type of each cell.
+ * 
+ * Face types:
+ * -1: Wall
+ *  0: Interior
+ *  1: Farfield
+ * 
+ * Cell types:
+ * -1: Wall
+ *  0: Interior
+ *  1: Farfield
  */
-void connectivity(int n, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, int faceNumber, int cellNumber) {
-    int totalPoints = n * n;
-    faceNumber = (n - 1) * (2 * n - 1);
-    cellNumber = pow((n - 1),2);
+void faceAndCellTypes(const int n, std::vector<int>& faceType, std::vector<int>& cellType) {
+    int totalFaces = (n - 1) * (2 * n - 1);
+    int totalCells = pow((n - 1),2);
 
-    // Resize vector to hold the faces
-    faceToCellsLeft.resize(faceNumber);
-    faceToCellsRight.resize(faceNumber);
+    // Resize vectors to hold the types
+    faceType.resize(totalFaces);
+    cellType.resize(totalCells);
 
-    // Number of the cell touching the first face of the last layer
-    int lastFaces = n * (n - 2);
+    for (int i = 0; i < totalFaces; i++) {
+        if (i < 2 * 2 * (n - 1)) { // First 2 layers (Wall)
+            faceType[i] = -1;
+        } else if (i < totalFaces - n - 2 * (n - 1)) { // Other layers (except the last 2)
+            faceType[i] = 0;
+        } else { // Last 2 layers (Farfield)
+            faceType[i] = 1;
+        }
+    }
 
-    for (int f = 0; f < faceNumber; f++) {
-        // If the face studied is neither on the first nor last layer
-        if (f > 2 * (n - 1) && f < faceNumber - n) {
-            // If the face make the junction between two layers and is not the one that close a bloc
-            if (f % 2 == 1 && f % (2 * (n - 1)) != 1) {
-                faceToCellsLeft[f] = (f - 1) / 2;
-                faceToCellsRight[f] = faceToCellsLeft[f] - 1;
-            } else
-            // If the face is on a layer and is not the one that close a bloc
-            if (f % (2 * (n - 1)) != 1) {
-                faceToCellsRight[f] = f/2;
-                faceToCellsLeft[f] = faceToCellsRight[f] - (n - 1);
-            } else
-            // If the face closes a bloc
-            {
-                faceToCellsLeft[f] = (f - 2) / 2;
-                faceToCellsRight[f] = faceToCellsLeft[f] + (n - 2);
-            }
-        } else 
-        // If the face studied is on the first layer
-        if (f < faceNumber - n) {
-            faceToCellsLeft[f] = - 1;
-            faceToCellsRight[f] = (f + 1) / 2;
-        } else
-        // If the face studied is on the last layer
-        {
-            faceToCellsLeft[f] = lastFaces;
-            faceToCellsRight[f] = - 1;
-
-            // Going to the next face on the last layer
-            lastFaces += 1;
+    for (int i = 0; i < totalCells; i++) {
+        if (i < 2 * (n - 1)) { // First 2 layers (Wall)
+            cellType[i] = -1;
+        } else if (i < totalCells - 2 * (n - 1)) { // Other layers (except the last 2)
+            cellType[i] = 0;
+        } else { // Last 2 layers (Farfield)
+            cellType[i] = 1;
         }
     }
 }

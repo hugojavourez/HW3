@@ -7,15 +7,14 @@
 #include <sstream>
 
 /**
-* Reads the coordinates from geometry file and stores them in the provided vectors.
-*
-* @param filename The name of the file to read from.
-* @param xCoords A vector to store the x-coordinates.
-* @param yCoords A vector to store the y-coordinates.
-* @param n1 The number of points that forms a loop around the body (called a layer).
-* @param n2 The number of layers.
-*/
-void readCoordinates(const std::string& filename, std::vector<double>& xCoords, std::vector<double>& yCoords, int n1, int n2) {    
+ * Reads the coordinates from a geometry file and stores them in the provided vectors.
+ *
+ * @param filename The name of the file to read from.
+ * @param n The grid size (nxn).
+ * @param xCoords A vector to store the x-coordinates.
+ * @param yCoords A vector to store the y-coordinates.
+ */
+void readCoordinates(const std::string& filename, const int n, std::vector<double>& xCoords, std::vector<double>& yCoords) {    
     
     std::ifstream file(filename);
 
@@ -29,10 +28,11 @@ void readCoordinates(const std::string& filename, std::vector<double>& xCoords, 
     file >> dummy;
 
     // Read the grid dimensions
+    int n1, n2;
     file >> n1 >> n2;
 
     // Total number of points
-    int totalPoints = n1 * n2;
+    int totalPoints = n * n;
 
     // Resize vectors to hold the coordinates
     xCoords.resize(totalPoints);
@@ -54,16 +54,15 @@ void readCoordinates(const std::string& filename, std::vector<double>& xCoords, 
 /**
  * Calculates the volume of each cell in the grid.
  * 
- * @param n1 The number of points that forms a loop around the body (called a layer).
- * @param n2 The number of layers.
+ * @param n The grid size (nxn).
  * @param xCoords A vector containing the x-coordinates.
  * @param yCoords A vector containing the y-coordinates.
  * @param volume A vector to store the volume of each cell.
  */
-void cellVolume(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& volume) {
+void cellVolume(int n, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& volume) {
     
-    int totalPoints = n1 * n2;
-    int totalCells = (n1 - 1) * (n2 - 1);
+    int totalPoints = n * n;
+    int totalCells = pow((n - 1),2);
 
     // Resize vectors to hold the coordinates
     volume.resize(totalCells);
@@ -71,12 +70,12 @@ void cellVolume(int n1, int n2, std::vector<double>& xCoords, std::vector<double
     // Counter of cells
     int c = 0;
 
-    for (int i = 0; i < totalPoints - n1; i++) {
+    for (int i = 0; i < totalPoints - n; i++) {
         // The node closing the layer does not contribute to a new cell
-        if ((i + 1) % n2 != 0) {
+        if ((i + 1) % n != 0) {
             // Create the diagonal vectors
-            double a1 = xCoords[i] - xCoords[i+n1+1], a2 = yCoords[i] - yCoords[i+n1+1];
-            double b1 = xCoords[i+1] - xCoords[i+n1], b2 = yCoords[i+1] - yCoords[i+n1];
+            double a1 = xCoords[i] - xCoords[i+n+1], a2 = yCoords[i] - yCoords[i+n+1];
+            double b1 = xCoords[i+1] - xCoords[i+n], b2 = yCoords[i+1] - yCoords[i+n];
             double A[2] = {a1, a2};
             double B[2] = {b1, b2};
         
@@ -94,15 +93,14 @@ void cellVolume(int n1, int n2, std::vector<double>& xCoords, std::vector<double
 /**
  * Calculates the length of each face in the grid.
  * 
- * @param n1 The number of points that forms a loop around the body (called a layer).
- * @param n2 The number of layers.
+ * @param n The grid size (nxn).
  * @param xCoords A vector containing the x-coordinates.
  * @param yCoords A vector containing the y-coordinates.
  * @param length A vector to store the length of each face.
  */
-void faceLength(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& length) {
-    int totalPoints = n1 * n2;
-    int totalFaces = (n1 - 1) * (2 * n2 - 1);
+void faceLength(int n, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& length) {
+    int totalPoints = n * n;
+    int totalFaces = (n - 1) * (2 * n - 1);
 
     // Resize vectors to hold the coordinates
     length.resize(totalFaces);
@@ -110,11 +108,11 @@ void faceLength(int n1, int n2, std::vector<double>& xCoords, std::vector<double
     // Counter of faces
     int f = 0;
 
-    for (int i = 0; i < n1; i++) {
-        for (int j = 0; j < n2; j++) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
             // The last point does not have another node to be linked to
             // And the node that close the layer has no new face (because it was computed when arrived on the layer)
-            if (i + j - 2 != totalPoints || i-1 % n1 != 0) {
+            if (i + j - 2 != totalPoints || i-1 % n != 0) {
                 // Create the face vector
                 double A[2] = {xCoords[i+j] - xCoords[i+j+1], yCoords[i+j] - yCoords[i+j+1]};
 
@@ -127,9 +125,9 @@ void faceLength(int n1, int n2, std::vector<double>& xCoords, std::vector<double
 
             // The last layer of nodes does not have faces pointing to a farther layer of nodes
             // And the node that close the layer has no new face (because it was computed when arrived on the layer)
-            if (j - 1 != n2 || i-1 % n1 != 0) {
+            if (j - 1 != n || i-1 % n != 0) {
                 // Create the face vector
-                double A[2] = {xCoords[i+j] - xCoords[i+j+n1], yCoords[i+j] - yCoords[i+j+n1]};
+                double A[2] = {xCoords[i+j] - xCoords[i+j+n], yCoords[i+j] - yCoords[i+j+n]};
 
                 // Calculate the face length of the i-th cell
                 norm(A,length[f]);
@@ -144,16 +142,15 @@ void faceLength(int n1, int n2, std::vector<double>& xCoords, std::vector<double
 /**
  * Calculates the normal vector of each face in the grid.
  * 
- * @param n1 The number of points that forms a loop around the body (called a layer).
- * @param n2 The number of layers.
+ * @param n The grid size (nxn).
  * @param xCoords A vector containing the x-coordinates.
  * @param yCoords A vector containing the y-coordinates.
  * @param xNormal A vector to store the x-component of the normal vector of each face.
  * @param yNormal A vector to store the y-component of the normal vector of each face.
  */
-void faceNormal(int n1, int n2, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& xNormal, std::vector<double>& yNormal) {
-    int totalPoints = n1 * n2;
-    int totalFaces = (n1 - 1) * (2 * n2 - 1);
+void faceNormal(int n, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& xNormal, std::vector<double>& yNormal) {
+    int totalPoints = n * n;
+    int totalFaces = (n - 1) * (2 * n - 1);
 
     // Resize vectors to hold the coordinates
     xNormal.resize(totalFaces);
@@ -162,11 +159,11 @@ void faceNormal(int n1, int n2, std::vector<double>& xCoords, std::vector<double
     // Counter of faces
     int f = 0;
 
-    for (int i = 0; i < n1; i++) {
-        for (int j = 0; j < n2; j++) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
             // The last point does not have another node to be linked to
             // And the node that close the layer has no new face (because it was computed when arrived on the layer)
-            if (i + j - 2 != totalPoints || i-1 % n1 != 0) {
+            if (i + j - 2 != totalPoints || i-1 % n != 0) {
                 // Create the normal vector
                 double x = yCoords[i+j] - yCoords[i+j+1];
                 double y = - (xCoords[i+j] - xCoords[i+j+1]);
@@ -181,10 +178,10 @@ void faceNormal(int n1, int n2, std::vector<double>& xCoords, std::vector<double
 
             // The last layer of nodes does not have faces pointing to a farther layer of nodes
             // And the node that close the layer has no new face (because it was computed when arrived on the layer)
-            if (j - 1 != n2 || i-1 % n1 != 0) {
+            if (j - 1 != n || i-1 % n != 0) {
                 // Create the normal vector
-                double x = yCoords[i+j] - yCoords[i+j+n1];
-                double y = - (xCoords[i+j] - xCoords[i+j+n1]);
+                double x = yCoords[i+j] - yCoords[i+j+n];
+                double y = - (xCoords[i+j] - xCoords[i+j+n]);
 
                 // Normalize the vector
                 xNormal[f] = x/(sqrt(pow(x,2)+pow(y,2)));
@@ -201,46 +198,45 @@ void faceNormal(int n1, int n2, std::vector<double>& xCoords, std::vector<double
 /**
  * Determines the connectivity between faces and cells in the grid.
  * 
- * @param n1 The number of points that forms a loop around the body (called a layer).
- * @param n2 The number of layers.
+ * @param n The grid size (nxn).
  * @param faceToCellsLeft A vector to store the cells on the left of each face.
  * @param faceToCellsRight A vector to store the cells on the right of each face.
  * @param faceNumber The total number of faces.
  * @param cellNumber The total number of cells.
  */
-void connectivity(int n1, int n2, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, int faceNumber, int cellNumber) {
-    int totalPoints = n1 * n2;
-    faceNumber = (n1 - 1) * (2 * n2 - 1);
-    cellNumber = (n1 - 1) * (n2 - 1);
+void connectivity(int n, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, int faceNumber, int cellNumber) {
+    int totalPoints = n * n;
+    faceNumber = (n - 1) * (2 * n - 1);
+    cellNumber = pow((n - 1),2);
 
     // Resize vector to hold the faces
     faceToCellsLeft.resize(faceNumber);
     faceToCellsRight.resize(faceNumber);
 
     // Number of the cell touching the first face of the last layer
-    int lastFaces = n1 * (n2 - 2);
+    int lastFaces = n * (n - 2);
 
     for (int f = 0; f < faceNumber; f++) {
         // If the face studied is neither on the first nor last layer
-        if (f > 2 * (n1 - 1) && f < faceNumber - n1) {
+        if (f > 2 * (n - 1) && f < faceNumber - n) {
             // If the face make the junction between two layers and is not the one that close a bloc
-            if (f % 2 == 1 && f % (2 * (n1 - 1)) != 1) {
+            if (f % 2 == 1 && f % (2 * (n - 1)) != 1) {
                 faceToCellsLeft[f] = (f - 1) / 2;
                 faceToCellsRight[f] = faceToCellsLeft[f] - 1;
             } else
             // If the face is on a layer and is not the one that close a bloc
-            if (f % (2 * (n1 - 1)) != 1) {
+            if (f % (2 * (n - 1)) != 1) {
                 faceToCellsRight[f] = f/2;
-                faceToCellsLeft[f] = faceToCellsRight[f] - (n1 - 1);
+                faceToCellsLeft[f] = faceToCellsRight[f] - (n - 1);
             } else
             // If the face closes a bloc
             {
                 faceToCellsLeft[f] = (f - 2) / 2;
-                faceToCellsRight[f] = faceToCellsLeft[f] + (n1 - 2);
+                faceToCellsRight[f] = faceToCellsLeft[f] + (n - 2);
             }
         } else 
         // If the face studied is on the first layer
-        if (f < faceNumber - n1) {
+        if (f < faceNumber - n) {
             faceToCellsLeft[f] = - 1;
             faceToCellsRight[f] = (f + 1) / 2;
         } else

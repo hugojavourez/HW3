@@ -15,7 +15,6 @@
  * @param yCoords A vector to store the y-coordinates.
  */
 void readCoordinates(const std::string& filename, const int n, std::vector<double>& xCoords, std::vector<double>& yCoords) {    
-    
     std::ifstream file(filename);
 
     if (!file) {
@@ -116,7 +115,6 @@ void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<in
  * @param volume A vector to store the volume of each cell.
  */
 void cellVolume(const int n, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& volume) {
-    
     int totalPoints = n * n;
     int totalCells = pow((n - 1),2);
 

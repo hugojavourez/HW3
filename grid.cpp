@@ -62,7 +62,7 @@ void readCoordinates(const std::string& filename, const int n, std::vector<doubl
 void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, int faceNumber, int cellNumber) {
     int totalPoints = n * n;
     faceNumber = (n - 1) * (2 * n - 1);
-    cellNumber = pow((n - 1),2);
+    cellNumber = static_cast<int>(pow((n - 1), 2));
 
     // Resize vector to hold the faces
     faceToCellsLeft.resize(faceNumber);
@@ -116,7 +116,7 @@ void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<in
  */
 void cellVolume(const int n, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& volume) {
     int totalPoints = n * n;
-    int totalCells = pow((n - 1),2);
+    int totalCells = static_cast<int>(pow((n - 1), 2));
 
     // Resize vectors to hold the coordinates
     volume.resize(totalCells);
@@ -159,36 +159,39 @@ void faceLength(const int n, std::vector<double>& xCoords, std::vector<double>& 
     // Resize vectors to hold the coordinates
     length.resize(totalFaces);
 
-    // Counter of faces
+    // Counter of faces and face vector
     int f = 0;
+    double A[2];
 
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            // The last point does not have another node to be linked to
-            // And the node that close the layer has no new face (because it was computed when arrived on the layer)
-            if (i + j - 2 != totalPoints || i-1 % n != 0) {
-                // Create the face vector
-                double A[2] = {xCoords[i+j] - xCoords[i+j+1], yCoords[i+j] - yCoords[i+j+1]};
+    // Nodes index
+    int current;
+    int next;
+    int nextLayer;
 
-                // Calculate the face length of the i-th cell
-                norm(A,length[f]);
+    for (int j = 0; j < n - 1; j++) { // (n-1) because the last layer of nodes does not have faces pointing to a farther layer of nodes
+        for (int i = 0; i < n - 1; i++) { // (n-1) because the nodes that close the layer has no new face (because it was computed when arrived on the layer)
+            // Calculate the index of the nodes
+            current = i + j*n;
+            next = i + j*n + 1;
+            nextLayer = i + j*n + n;
+            
+            // Face on the same layer of node than the node studied
+            // Create the face vector
+            A[0] = xCoords[current] - xCoords[next];
+            A[1] = yCoords[current] - yCoords[next];
+            // Calculate the face length of the i-th cell
+            norm(A,length[f]);
+            // Going to the next face
+            f += 1;
 
-                // Going to the next face
-                f += 1;
-            }
-
-            // The last layer of nodes does not have faces pointing to a farther layer of nodes
-            // And the node that close the layer has no new face (because it was computed when arrived on the layer)
-            if (j - 1 != n || i-1 % n != 0) {
-                // Create the face vector
-                double A[2] = {xCoords[i+j] - xCoords[i+j+n], yCoords[i+j] - yCoords[i+j+n]};
-
-                // Calculate the face length of the i-th cell
-                norm(A,length[f]);
-
-                // Going to the next face
-                f += 1;
-            }
+            // Face pointing to a farther layer of nodes
+            // Create the face vector
+            A[0] = xCoords[current] - xCoords[nextLayer];
+            A[1] = yCoords[current] - yCoords[nextLayer];
+            // Calculate the face length of the i-th cell
+            norm(A,length[f]);
+            // Going to the next face
+            f += 1;
         }
     }
 }
@@ -210,40 +213,44 @@ void faceNormal(const int n, std::vector<double>& xCoords, std::vector<double>& 
     xNormal.resize(totalFaces,0.0);
     yNormal.resize(totalFaces,0.0);
 
-    // Counter of faces
+    // Counter of faces, face vector and norm vector magnifitude
     int f = 0;
+    double A[2];
+    double norm;
 
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - 1; j++) {
-            int current = i * n + j;         // Current node index
-            int right = current + 1;        // Right neighbor
-            int top = current + n;          // Top neighbor
+    // Nodes index
+    int current;
+    int next;
+    int nextLayer;
 
-            // Check bounds for right face
-            if (j + 1 < n) {
-                double x = yCoords[current] - yCoords[right];
-                double y = -(xCoords[current] - xCoords[right]);
+    for (int j = 0; j < n - 1; j++) { // (n-1) because the last layer of nodes does not have faces pointing to a farther layer of nodes
+        for (int i = 0; i < n - 1; i++) { // (n-1) because the nodes that close the layer has no new face (because it was computed when arrived on the layer)
+            // Calculate the index of the nodes
+            current = i + j*n;
+            next = i + j*n + 1;
+            nextLayer = i + j*n + n;
 
-                double norm = sqrt(x * x + y * y);
-                if (norm != 0) {
-                    xNormal[f] = x / norm;
-                    yNormal[f] = y / norm;
-                }
-                f++;
-            }
+            // Face on the same layer of node than the node studied
+            // Create the normal vector
+            A[0] = yCoords[i+j*n] - yCoords[i+j*n+1];
+            A[1] = - (xCoords[i+j*n] - xCoords[i+j*n+1]);
+            norm = sqrt(pow(A[0],2)+pow(A[1],2));
+            // Normalize the vector
+            xNormal[f] = A[0] / norm;
+            yNormal[f] = A[1] / norm;
+            // Going to the next face
+            f += 1;
 
-            // Check bounds for top face
-            if (i + 1 < n) {
-                double x = yCoords[current] - yCoords[top];
-                double y = -(xCoords[current] - xCoords[top]);
-
-                double norm = sqrt(x * x + y * y);
-                if (norm != 0) {
-                    xNormal[f] = x / norm;
-                    yNormal[f] = y / norm;
-                }
-                f++;
-            }
+            // Face pointing to a farther layer of nodes
+            // Create the normal vector
+            A[0] = yCoords[i+j*n] - yCoords[i+j*n+n];
+            A[1] = - (xCoords[i+j*n] - xCoords[i+j*n+n]);
+            norm = sqrt(pow(A[0],2)+pow(A[1],2));
+            // Normalize the vector
+            xNormal[f] = A[0] / norm;
+            yNormal[f] = A[1] / norm;
+            // Going to the next face
+            f += 1;
         }
     }
 }
@@ -268,7 +275,7 @@ void faceNormal(const int n, std::vector<double>& xCoords, std::vector<double>& 
  */
 void faceAndCellTypes(const int n, std::vector<int>& faceType, std::vector<int>& cellType) {
     int totalFaces = (n - 1) * (2 * n - 1);
-    int totalCells = pow((n - 1),2);
+    int totalCells = static_cast<int>(pow((n - 1), 2));
 
     // Resize vectors to hold the types
     faceType.resize(totalFaces);

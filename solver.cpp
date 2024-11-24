@@ -17,7 +17,7 @@ void Initialization(int n, double MachNumber, double AoA, double fluidProperties
     double velocityMagnitude = sqrt(pow(flowVelocity[0],2) + pow(flowVelocity[1],2));
 
     // Initialize the contravariant velocity and the normal vector
-    double Vc;
+    double Vc = 0.0;
     double normalVector[2];
 
     // Calculate the total energy

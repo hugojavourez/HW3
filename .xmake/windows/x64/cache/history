@@ -31,6 +31,11 @@
         "xmake run main",
         "xmake run",
         "xmake run",
-        "xmake check"
+        "xmake check",
+        "xmake f -m debug",
+        "xmake ",
+        [[xmake lua C:\Users\javou\scoop\apps\xmake\current\modules\private\utils\statistics.lua]],
+        [[xmake lua C:\Users\javou\scoop\apps\xmake\current\actions\build\cleaner.lua]],
+        "xmake "
     }
 }

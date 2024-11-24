@@ -207,45 +207,44 @@ void faceNormal(const int n, std::vector<double>& xCoords, std::vector<double>& 
     int totalFaces = (n - 1) * (2 * n - 1);
 
     // Resize vectors to hold the coordinates
-    xNormal.resize(totalFaces);
-    yNormal.resize(totalFaces);
+    xNormal.resize(totalFaces,0.0);
+    yNormal.resize(totalFaces,0.0);
 
     // Counter of faces
     int f = 0;
 
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            // The last point does not have another node to be linked to
-            // And the node that close the layer has no new face (because it was computed when arrived on the layer)
-            if (i + j - 2 != totalPoints || i-1 % n != 0) {
-                // Create the normal vector
-                double x = yCoords[i+j] - yCoords[i+j+1];
-                double y = - (xCoords[i+j] - xCoords[i+j+1]);
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - 1; j++) {
+            int current = i * n + j;         // Current node index
+            int right = current + 1;        // Right neighbor
+            int top = current + n;          // Top neighbor
 
-                // Normalize the vector
-                xNormal[f] = x/(sqrt(pow(x,2)+pow(y,2)));
-                yNormal[f] = y/(sqrt(pow(x,2)+pow(y,2)));
+            // Check bounds for right face
+            if (j + 1 < n) {
+                double x = yCoords[current] - yCoords[right];
+                double y = -(xCoords[current] - xCoords[right]);
 
-                // Going to the next face
-                f += 1;
+                double norm = sqrt(x * x + y * y);
+                if (norm != 0) {
+                    xNormal[f] = x / norm;
+                    yNormal[f] = y / norm;
+                }
+                f++;
             }
 
-            // The last layer of nodes does not have faces pointing to a farther layer of nodes
-            // And the node that close the layer has no new face (because it was computed when arrived on the layer)
-            if (j - 1 != n || i-1 % n != 0) {
-                // Create the normal vector
-                double x = yCoords[i+j] - yCoords[i+j+n];
-                double y = - (xCoords[i+j] - xCoords[i+j+n]);
+            // Check bounds for top face
+            if (i + 1 < n) {
+                double x = yCoords[current] - yCoords[top];
+                double y = -(xCoords[current] - xCoords[top]);
 
-                // Normalize the vector
-                xNormal[f] = x/(sqrt(pow(x,2)+pow(y,2)));
-                yNormal[f] = y/(sqrt(pow(x,2)+pow(y,2)));
-
-                // Going to the next face
-                f += 1;
+                double norm = sqrt(x * x + y * y);
+                if (norm != 0) {
+                    xNormal[f] = x / norm;
+                    yNormal[f] = y / norm;
+                }
+                f++;
             }
         }
-
     }
 }
 

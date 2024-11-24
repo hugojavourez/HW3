@@ -27,7 +27,7 @@ double fluidProperties[5] = {rhoInf, pInf, gamma, R, TInf};
  */
 int main() {
 
-    std::string filename = std::to_string(n) + "x" + std::to_string(n) + ".txt"; // Name of the geometry file to read from
+    std::string filename = "C:\\Users\\kamal\\OneDrive\\PolyTechnique\\DESS-MAITRISE\\Session 3\\MEC6602 - Transonic Aerodynamics\\HOMEWORK_3_OFFICIAL\\HW3\\NACA0012grids\\9x9.x"; // Name of the geometry file to read from
     std::vector<double> xCoords, yCoords; // Vectors to store the x and y coordinates of the nodes
 
     // Read the coordinates from the file
@@ -50,5 +50,11 @@ int main() {
     int faceNumber, cellNumber;
     connectivity(n, faceToCellsLeft, faceToCellsRight, faceNumber, cellNumber);
 
+    std::vector<double> W;
+    std::vector<double> Fc;
+    std::vector<double> R;
+    Initialization(n, MachNumber,  AoA,  fluidProperties,  faceNumber,  cellNumber, faceToCellsLeft, faceToCellsRight, xNormal, yNormal, W, Fc, R);
+
+    
     return 0;
 }

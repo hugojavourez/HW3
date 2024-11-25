@@ -27,9 +27,9 @@ void Initialization(int n, double MachNumber, double AoA, double fluidProperties
     for (int f = 0; f < faceNumber; f++) {
         // Calculate W
         W[3 * f] = fluidProperties[0];
-        W[3 * (f + 1)] = fluidProperties[0] * flowVelocity[0];
-        W[3 * (f + 2)] = fluidProperties[0] * flowVelocity[1];
-        W[3 * (f + 3)] = fluidProperties[0] * totalEnergy;
+        W[3 * f + 1] = fluidProperties[0] * flowVelocity[0];
+        W[3 * f + 2] = fluidProperties[0] * flowVelocity[1];
+        W[3 * f + 3] = fluidProperties[0] * totalEnergy;
 
         // Calculate the contravariant velocity
         normalVector[0] = xNormal[f];
@@ -38,9 +38,9 @@ void Initialization(int n, double MachNumber, double AoA, double fluidProperties
 
         // Calculate Fc
         Fc[3 * f] = fluidProperties[0] * Vc;
-        Fc[3 * (f + 1)] = fluidProperties[0] * Vc * flowVelocity[0] + fluidProperties[1] * xNormal[f];
-        Fc[3 * (f + 2)] = fluidProperties[0] * Vc * flowVelocity[1] + fluidProperties[1] * yNormal[f];
-        Fc[3 * (f + 3)] = fluidProperties[0] * Vc * totalEnergy + fluidProperties[1] * Vc;
+        Fc[3 * f + 1] = fluidProperties[0] * Vc * flowVelocity[0] + fluidProperties[1] * xNormal[f];
+        Fc[3 * f + 2] = fluidProperties[0] * Vc * flowVelocity[1] + fluidProperties[1] * yNormal[f];
+        Fc[3 * f + 3] = fluidProperties[0] * Vc * totalEnergy + fluidProperties[1] * Vc;
 
         // Calculate the residual vector R
         R[faceToCellsLeft[f]] += 0;

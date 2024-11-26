@@ -57,14 +57,14 @@ int main() {
 
     // Initialize the flow variables
     std::vector<double> W;
-    std::vector<double> Fc;
     std::vector<double> R;
-    Initialization(n, MachNumber,  AoA,  fluidProperties,  faceNumber,  cellNumber, faceToCellsLeft, faceToCellsRight, xNormal, yNormal, W, Fc, R);
+    Initialization(n, MachNumber,  AoA,  fluidProperties,  faceNumber, faceToCellsLeft, faceToCellsRight, xNormal, yNormal, W, R);
 
     // Apply the boundary conditions
     // ...
 
     // Solve
+    std::vector<double> Fc;
     // ...
     
     return 0;

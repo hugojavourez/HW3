@@ -48,6 +48,35 @@ void Initialization(int n, double MachNumber, double AoA, double fluidProperties
     }
 }
 
-void Solve(){
+void Calculateflux(int n, double MachNumber, double AoA, double fluidProperties[5], int faceNumber, int cellNumber, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& Fc, std::vector<double>& R){
+    // Il faut tout d'abord itérer sur les arêtes.
+
+    for (int i = 0; i < faceNumber; i++ ){
+        //get les cellules concernés
+        int id_cell_left = faceToCellsLeft[i];
+        int id_cell_right = faceToCellsRight[i];
+
+        // on calcule les proprièté au cellules de gauche
+        double rho_left = W[id_cell_left];
+        double u_left = W[id_cell_left + 1]/W[id_cell_left];
+        double v_left = W[id_cell_left + 2]/W[id_cell_left];
+        double E_left = W[id_cell_left + 3]/W[id_cell_left];
+        double p_left = (fluidProperties[2]-1)*(W[id_cell_left + 3] - 0.5*(rho_left*(u_left*u_left + v_left*v_left)));
+
+        // on calcule les proprièté au cellules de droite
+        double rho_right = W[id_cell_right];
+        double u_right = W[id_cell_right + 1]/W[id_cell_right];
+        double v_right = W[id_cell_right + 2]/W[id_cell_right];
+        double E_right = W[id_cell_right + 3]/W[id_cell_right];
+        double p_right = (fluidProperties[2]-1)*(W[id_cell_right + 3] - 0.5*(rho_right*(u_right*u_right + v_right*v_right)));
+
+        //ensuite, construire la matrice de flux
+
+    }   
 
 }
+
+
+
+
+    

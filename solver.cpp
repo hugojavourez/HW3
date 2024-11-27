@@ -150,7 +150,7 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
     }
 }
 
-void Calculateflux(int n, double MachNumber, double AoA, double fluidProperties[5], int faceNumber, int cellNumber, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, length, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& Fc, std::vector<double>& R,std::vector<double>& F, std::vector<double>& G){
+void Calculateflux(int n, double MachNumber, double AoA, double fluidProperties[5], int faceNumber, int cellNumber, std::vector<int> faceToCellsLeft, std::vector<int> faceToCellsRight, std::vector<double> length, std::vector<double> xNormal, std::vector<double> yNormal, std::vector<double> W, std::vector<double>& Flux){
     // Il faut tout d'abord itérer sur les arêtes.
 
     for (int i = 0; i < faceNumber; i++ ){
@@ -180,34 +180,39 @@ void Calculateflux(int n, double MachNumber, double AoA, double fluidProperties[
         double p = 0.5*(p_left + p_right);
 
         // Maintenant on construit F et G, les flux lié respectivement à x et à y
-        F = {
+        std::vector<double> F = {
             rho*u, 
             rho *u*u + p,
             rho*u*v,
             u*(rho*(E+p)) };
-        G = {
+        std::vector<double> G = {
             rho*u, 
             rho *u*v,
             rho*v*v + p,
             v*(rho*(E+p))};
         
-        // Finally, we construct the fluxes 
-        flux_normal = xNormal[i] *F + yNormal[i] * G
+        // Finally, we construct the fluxes Flux_normal = xNormal[i] *F + yNormal[i] * G;
 
-        //lenght = face lenght
-        flux = flux_normal * lenght[i]  
+        for (double &Element : F){
+            Element *= xNormal[i];
+        }
+
+        for (double &Element : G){
+            Element *= yNormal[i];
+        }
+        
+        std::vector<double> Flux_Normal(G.size());
+
+        for (int i = 0; i< Flux_Normal.size();i++){
+            Flux_Normal[i] = F[i] + G[i];
+        }
 
 
-
-
-
-
-
-
-
-
+        for (double &Element : Flux_Normal){
+            Element *= length[i];
+        }
+        
     }   
-
 }
 
 

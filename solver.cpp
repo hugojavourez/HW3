@@ -150,11 +150,11 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
     }
 }
 
-void Calculateflux(int n, double MachNumber, double AoA, double fluidProperties[5], int faceNumber, int cellNumber, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& Fc, std::vector<double>& R){
+void Calculateflux(int n, double MachNumber, double AoA, double fluidProperties[5], int faceNumber, int cellNumber, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, length, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& Fc, std::vector<double>& R,std::vector<double>& F, std::vector<double>& G){
     // Il faut tout d'abord itérer sur les arêtes.
 
     for (int i = 0; i < faceNumber; i++ ){
-        //get les cellules concernés
+        // Get les cellules concernés
         int id_cell_left = faceToCellsLeft[i];
         int id_cell_right = faceToCellsRight[i];
 
@@ -165,14 +165,46 @@ void Calculateflux(int n, double MachNumber, double AoA, double fluidProperties[
         double E_left = W[id_cell_left + 3]/W[id_cell_left];
         double p_left = (fluidProperties[2]-1)*(W[id_cell_left + 3] - 0.5*(rho_left*(u_left*u_left + v_left*v_left)));
 
-        // on calcule les proprièté au cellules de droite
+        // On calcule les proprièté au cellules de droite
         double rho_right = W[id_cell_right];
         double u_right = W[id_cell_right + 1]/W[id_cell_right];
         double v_right = W[id_cell_right + 2]/W[id_cell_right];
         double E_right = W[id_cell_right + 3]/W[id_cell_right];
         double p_right = (fluidProperties[2]-1)*(W[id_cell_right + 3] - 0.5*(rho_right*(u_right*u_right + v_right*v_right)));
 
-        //ensuite, construire la matrice de flux
+        // Ensuite, Calculer les propriètés au arêtes
+        double rho = 0.5*(rho_left + rho_right);
+        double u = 0.5*(u_left + u_right);
+        double v = 0.5*(v_left + v_right);
+        double E = 0.5*(E_right + E_left);
+        double p = 0.5*(p_left + p_right);
+
+        // Maintenant on construit F et G, les flux lié respectivement à x et à y
+        F = {
+            rho*u, 
+            rho *u*u + p,
+            rho*u*v,
+            u*(rho*(E+p)) };
+        G = {
+            rho*u, 
+            rho *u*v,
+            rho*v*v + p,
+            v*(rho*(E+p))};
+        
+        // Finally, we construct the fluxes 
+        flux_normal = xNormal[i] *F + yNormal[i] * G
+
+        //lenght = face lenght
+        flux = flux_normal * lenght[i]  
+
+
+
+
+
+
+
+
+
 
     }   
 

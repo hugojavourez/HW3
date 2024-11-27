@@ -35,9 +35,9 @@ int main() {
     readCoordinates(filename, n, xCoords, yCoords);
 
     // Determine the connectivity between faces and cells
-    std::vector<int> faceToCellsLeft, faceToCellsRight;
+    std::vector<int> faceToCellsLeft, faceToCellsRight, cellToFaces;
     int faceNumber = 0, cellNumber = 0;
-    connectivity(n, faceToCellsLeft, faceToCellsRight, faceNumber, cellNumber);
+    connectivity(n, faceToCellsLeft, faceToCellsRight, cellToFaces, faceNumber, cellNumber);
 
     // Calculate the volume of each cell
     std::vector<double> volume;
@@ -61,7 +61,7 @@ int main() {
     Initialization(n, MachNumber,  AoA,  fluidProperties,  faceNumber, faceToCellsLeft, faceToCellsRight, xNormal, yNormal, W, R);
 
     // Apply the boundary conditions
-    // ...
+    BoundaryConditions(n, MachNumber,  AoA, fluidProperties, cellType, cellToFaces, xNormal, yNormal, W, R);
 
     // Solve
     std::vector<double> Fc;

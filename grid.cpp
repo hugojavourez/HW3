@@ -59,7 +59,7 @@ void readCoordinates(const std::string& filename, const int n, std::vector<doubl
  * @param faceNumber The total number of faces.
  * @param cellNumber The total number of cells.
  */
-void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, int faceNumber, int cellNumber) {
+void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<int>& cellToFaces, int faceNumber, int cellNumber) {
     int totalPoints = n * n;
     faceNumber = (n - 1) * (2 * n - 1);
     cellNumber = static_cast<int>(pow((n - 1), 2));
@@ -67,15 +67,19 @@ void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<in
     // Resize vector to hold the faces
     faceToCellsLeft.resize(faceNumber);
     faceToCellsRight.resize(faceNumber);
+    cellToFaces.resize(4*cellNumber);
 
     // Number of the cell touching the first face of the last layer
     int lastFaces = n * (n - 2);
+
+    // Counter of faces already added for each cell
+    std::vector<int> counterOfFaces(cellNumber,0);
 
     for (int f = 0; f < faceNumber; f++) {
         // If the face studied is neither on the first nor last layer
         if (f > 2 * (n - 1) && f < faceNumber - n) {
             // If the face make the junction between two layers and is not the one that close a bloc
-            if (f % 2 == 1 && f % (2 * (n - 1)) != 1) {
+            if (f % 2 == 0 && f % (2 * (n - 1)) != 1) {
                 faceToCellsLeft[f] = (f - 1) / 2;
                 faceToCellsRight[f] = faceToCellsLeft[f] - 1;
             } else
@@ -89,16 +93,27 @@ void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<in
                 faceToCellsLeft[f] = (f - 2) / 2;
                 faceToCellsRight[f] = faceToCellsLeft[f] + (n - 2);
             }
+
+            // Add the face to the cells
+            cellToFaces[faceToCellsLeft[f]] = f;
+            cellToFaces[faceToCellsRight[f]] = f;
+
         } else 
         // If the face studied is on the first layer
         if (f < faceNumber - n) {
             faceToCellsLeft[f] = - 1;
             faceToCellsRight[f] = (f + 1) / 2;
+
+            // Add the face to the cell
+            cellToFaces[faceToCellsRight[f]] = f;
         } else
         // If the face studied is on the last layer
         {
             faceToCellsLeft[f] = lastFaces;
             faceToCellsRight[f] = - 1;
+
+            // Add the face to the cell
+            cellToFaces[faceToCellsLeft[f]] = f;
 
             // Going to the next face on the last layer
             lastFaces += 1;

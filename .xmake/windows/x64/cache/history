@@ -42,6 +42,10 @@
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\explorer.lua]],
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\config.lua]],
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\explorer.lua]],
-        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\config.lua]]
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\config.lua]],
+        "xmake ",
+        [[xmake lua C:\Users\javou\scoop\apps\xmake\current\modules\private\utils\statistics.lua]],
+        [[xmake lua C:\Users\javou\scoop\apps\xmake\current\actions\build\cleaner.lua]],
+        "xmake "
     }
 }

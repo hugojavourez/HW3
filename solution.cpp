@@ -67,6 +67,38 @@ void aerodynamicCoefficients(const int n, const double MachNumber, const double 
 }
 
 /**
+ * Writes the flow field to a file in the Tecplot format.
+ * 
+ * @param n The grid size (nxn).
+ * @param xCoords A vector containing the x-coordinates of the nodes.
+ * @param yCoords A vector containing the y-coordinates of the nodes.
+ * @param faceToNodes A vector containing the index of the nodes forming the face.
+ * @param W A vector containing the flow variables.
+ * @param techplotFilename The name of the file to write the flow field.
+ */
+void techplot(const int n, const double fluidProperties[5], const std::vector<double>& xCoords, const std::vector<double>& yCoords, const std::vector<double>& W, const std::string& techplotFilename) {
+    int totalPoints = n * n;
+    int totalFaces = (n - 1) * (2 * n - 1);
+
+    // Open the file
+    std::ofstream file(techplotFilename);
+
+    // Write the header
+    file << "TITLE = \"Flow field\"" << std::endl;
+    file << "VARIABLES = \"X\", \"Y\", \"Rho\", \"U\", \"V\", \"UVMagnitude\", \"P\"" << std::endl;
+    file << "ZONE T=\"Flow field\", I=" << totalPoints << ", J=" << totalFaces << ", F=POINT" << std::endl;
+
+    // Loop on the nodes
+    for (int i = 2 * n; i < totalPoints - (2 * n); i++) {
+        // Write the coordinates and the flow variables
+        file << xCoords[i] << " " << yCoords[i] << " " << W[3 * i] << " " << W[3 * i + 1] / W[3 * i] << " " << W[3 * i + 2] / W[3 * i] << " " << sqrt(pow(W[3 * i + 1],2) + pow(W[3 * i + 2],2)) / W[3 * i] << " " << (fluidProperties[2] - 1) * ((W[3 * i + 3] / W[3 * i]) - 0.5 * W[3 * i] * pow(sqrt(pow(W[3 * i + 1],2) + pow(W[3 * i + 2],2)) / W[3 * i],2)) << std::endl;
+    }
+
+    // Close the file
+    file.close();
+}
+
+/**
  * Writes the pressure field around the airfoil in function of the x coordinates to a file.
  * 
  * @param n The grid size (nxn).

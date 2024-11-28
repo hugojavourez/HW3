@@ -29,12 +29,12 @@ void aerodynamicCoefficients(const int n, const double MachNumber, const double 
     int cellIndex; // Index of the physical cell touching the boundary
     int nodeIndex1, nodeIndex2; // Index of the nodes forming the face
     double dragForce = 0, liftForce = 0; // Drag and lift forces acting on the airfoil
-    double forceX, forceY, moment; // Infinitesimal forces and moments acting on the airfoil (the x and y direction are relative to the freestream velocity)
+    double forceX = 0, forceY = 0, moment = 0; // Infinitesimal forces and moments acting on the airfoil (the x and y direction are relative to the freestream velocity)
     double pSurface; // Pressure at the surface of the airfoil
 
     // Calculate the chord length
     double chordVector[2] = {xCoords[2 * n + int(n / 2)] - xCoords[2 * n], yCoords[2 * n + int(n / 2)] - yCoords[2 * n]}; // Vector from the first to the last node of the airfoil
-    double chordLength; // Length of the chord
+    double chordLength = 0; // Length of the chord
     norm(chordVector, chordLength);
 
     // Calculate the rotation matrix
@@ -49,8 +49,8 @@ void aerodynamicCoefficients(const int n, const double MachNumber, const double 
         pSurface = (fluidProperties[2] - 1) * ((W[3 * cellIndex + 3] / W[3 * cellIndex]) - 0.5 * W[3 * cellIndex] * pow(sqrt(pow(W[3 * cellIndex + 1],2) + pow(W[3 * cellIndex + 2],2)) / W[3 * cellIndex],2));
 
         // Calculate the force acting on the airfoil
-        forceX += pSurface * (xNormal[f] * rotationMatrix[0][0] + yNormal[f] * rotationMatrix[0][1]) * length[f];
-        forceY += pSurface * (xNormal[f] * rotationMatrix[1][0] + yNormal[f] * rotationMatrix[1][1]) * length[f];
+        forceX = pSurface * (xNormal[f] * rotationMatrix[0][0] + yNormal[f] * rotationMatrix[0][1]) * length[f];
+        forceY = pSurface * (xNormal[f] * rotationMatrix[1][0] + yNormal[f] * rotationMatrix[1][1]) * length[f];
         dragForce += forceX;
         liftForce += forceY;
 

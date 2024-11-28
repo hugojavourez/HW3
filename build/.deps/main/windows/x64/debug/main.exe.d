@@ -4,6 +4,7 @@
         [[build\.objs\main\windows\x64\debug\grid.cpp.obj]],
         [[build\.objs\main\windows\x64\debug\main.cpp.obj]],
         [[build\.objs\main\windows\x64\debug\math.cpp.obj]],
+        [[build\.objs\main\windows\x64\debug\solution.cpp.obj]],
         [[build\.objs\main\windows\x64\debug\solver.cpp.obj]]
     },
     values = {

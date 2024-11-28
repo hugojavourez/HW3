@@ -51,15 +51,18 @@ void readCoordinates(const std::string& filename, const int n, std::vector<doubl
 }
 
 /**
- * Determines the connectivity between faces and cells in the grid.
+ * Determines the connectivity between nodes, faces and cells in the grid.
  * 
  * @param n The grid size (nxn).
+ * @param xCoords A vector containing the x-coordinates of the nodes.
+ * @param yCoords A vector containing the y-coordinates of the nodes.
  * @param faceToCellsLeft A vector to store the cells on the left of each face.
  * @param faceToCellsRight A vector to store the cells on the right of each face.
+ * @param cellToFaces A vector to store the faces of each cell.
  * @param faceNumber The total number of faces.
  * @param cellNumber The total number of cells.
  */
-void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<int>& cellToFaces, int faceNumber, int cellNumber) {
+void connectivity(const int n, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<int>& cellToFaces, std::vector<int>& faceToNodes, int faceNumber, int cellNumber) {
     int totalPoints = n * n;
     faceNumber = (n - 1) * (2 * n - 1);
     cellNumber = static_cast<int>(pow((n - 1), 2));
@@ -68,6 +71,7 @@ void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<in
     faceToCellsLeft.resize(faceNumber);
     faceToCellsRight.resize(faceNumber);
     cellToFaces.resize(4*cellNumber);
+    faceToNodes.resize(2*faceNumber);
 
     // Number of the cell touching the first face of the last layer
     int lastFaces = n * (n - 2);
@@ -82,16 +86,22 @@ void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<in
             if (f % 2 == 0 && f % (2 * (n - 1)) != 1) {
                 faceToCellsLeft[f] = (f - 1) / 2;
                 faceToCellsRight[f] = faceToCellsLeft[f] - 1;
+                faceToNodes[2*f] = (f / 2) + int(f / (2 * (n - 1)));
+                faceToNodes[2*f+1] = faceToNodes[2*f] + n;
             } else
             // If the face is on a layer and is not the one that close a bloc
             if (f % (2 * (n - 1)) != 1) {
                 faceToCellsRight[f] = f/2;
                 faceToCellsLeft[f] = faceToCellsRight[f] - (n - 1);
+                faceToNodes[2*f] = (f / 2) + int(f / (2 * (n - 1)));
+                faceToNodes[2*f+1] = faceToNodes[2*f] + 1;
             } else
             // If the face closes a bloc
             {
                 faceToCellsLeft[f] = (f - 2) / 2;
                 faceToCellsRight[f] = faceToCellsLeft[f] + (n - 2);
+                faceToNodes[2*f] = n * int(f / (2 * (n - 1)));
+                faceToNodes[2*f+1] = faceToNodes[2*f] + n;
             }
 
             // Add the face to the cells
@@ -102,7 +112,9 @@ void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<in
         // If the face studied is on the first layer
         if (f < faceNumber - n) {
             faceToCellsLeft[f] = - 1;
-            faceToCellsRight[f] = (f + 1) / 2;
+            faceToCellsRight[f] = (f + 2) / 2;
+            faceToNodes[2*f] = f / 2;
+            faceToNodes[2*f+1] = faceToNodes[2*f] + 1;
 
             // Add the face to the cell
             cellToFaces[faceToCellsRight[f]] = f;
@@ -111,6 +123,8 @@ void connectivity(const int n, std::vector<int>& faceToCellsLeft, std::vector<in
         {
             faceToCellsLeft[f] = lastFaces;
             faceToCellsRight[f] = - 1;
+            faceToNodes[2*f] = (f / 2) + int(f / (2 * (n - 1)));
+            faceToNodes[2*f+1] = faceToNodes[2*f] + 1;
 
             // Add the face to the cell
             cellToFaces[faceToCellsLeft[f]] = f;

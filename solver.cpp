@@ -4,6 +4,21 @@
 #include <iostream>
 #include <vector>
 
+/**
+ * Initializes the flow variables and the residuals.
+ * 
+ * @param n The grid size (nxn).
+ * @param MachNumber The Mach number of the flow.
+ * @param AoA The angle of attack in degrees.
+ * @param fluidProperties An array containing the fluid properties: [rhoInf, pInf, gamma, R, TInf].
+ * @param cellNumber The total number of cells.
+ * @param faceToCellsLeft A vector containing the index of the cell on the left of each face.
+ * @param faceToCellsRight A vector containing the index of the cell on the right of each face.
+ * @param xNormal A vector containing the x-component of the normal vector of each face.
+ * @param yNormal A vector containing the y-component of the normal vector of each face.
+ * @param W A vector to store the flow variables.
+ * @param R A vector to store the residuals.
+ */
 void Initialization(int n, double MachNumber, double AoA, double fluidProperties[5], int cellNumber, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R) {
     std::cout << "Initialization function called" << std::endl;
 
@@ -62,21 +77,21 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
             faceIndex = cellToFaces[4*physicalCellIndex];
 
             // Calculate the flow velocity in the physical cell
-            flowVelocity[0] = W[3 * physicalCellIndex + 1] / W[3 * physicalCellIndex];
-            flowVelocity[1] = W[3 * physicalCellIndex + 2] / W[3 * physicalCellIndex];
+            flowVelocity[0] = W[4 * physicalCellIndex + 1] / W[4 * physicalCellIndex];
+            flowVelocity[1] = W[4 * physicalCellIndex + 2] / W[4 * physicalCellIndex];
             velocityMagnitude = sqrt(pow(flowVelocity[0],2) + pow(flowVelocity[1],2));
             // Calculate the flow velocity in the ghost cell
             uGhost = flowVelocity[0] - 2*velocityMagnitude * xNormal[faceIndex]; 
             vGhost = flowVelocity[1] - 2*velocityMagnitude * yNormal[faceIndex];
             // Calculate the pressure and the total energy in the physical cell
-            pGhost = (fluidProperties[2] - 1) * ((W[3 * physicalCellIndex + 3] / W[3 * physicalCellIndex]) - 0.5 * W[3 * physicalCellIndex] * pow(velocityMagnitude,2));
-            EGhost = pGhost / ((fluidProperties[2] - 1)) + 0.5 * W[3 * physicalCellIndex] * (pow(uGhost,2) + pow(vGhost,2));
+            pGhost = (fluidProperties[2] - 1) * ((W[4 * physicalCellIndex + 3] / W[4 * physicalCellIndex]) - 0.5 * W[4 * physicalCellIndex] * pow(velocityMagnitude,2));
+            EGhost = pGhost / ((fluidProperties[2] - 1)) + 0.5 * W[4 * physicalCellIndex] * (pow(uGhost,2) + pow(vGhost,2));
 
             // Set the values of the ghost cell
-            W[3 * c] = W[3 * physicalCellIndex];
-            W[3 * c + 1] = W[3 * c] * uGhost;
-            W[3 * c + 2] = W[3 * c] * vGhost;
-            W[3 * c + 3] = W[3 * c] * EGhost;
+            W[4 * c] = W[4 * physicalCellIndex];
+            W[4 * c + 1] = W[3 * c] * uGhost;
+            W[4 * c + 2] = W[3 * c] * vGhost;
+            W[4 * c + 3] = W[3 * c] * EGhost;
 
             // Setting the residual to zero
             R[c] = 0;
@@ -107,40 +122,40 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
                 if (dotProductResult < 0.0) {
                     // Subsonic inflow
                     soundSpeed = sqrt(fluidProperties[2] * fluidProperties[3] * fluidProperties[4]);
-                    pPhysical = (fluidProperties[2] - 1) * ((W[3 * physicalCellIndex + 3] / W[3 * physicalCellIndex]) - 0.5 * W[3 * physicalCellIndex] * pow(sqrt(pow(W[3 * physicalCellIndex + 1],2) + pow(W[3 * physicalCellIndex + 2],2)) / W[3 * physicalCellIndex],2));
-                    pGhost = 0.5 * (fluidProperties[1] + pPhysical - W[3 * physicalCellIndex] *soundSpeed * ((flowVelocity[0] - (W[3 * physicalCellIndex + 1] / W[3 * physicalCellIndex])) * xNormal[faceIndex] + (flowVelocity[1] - (W[3 * physicalCellIndex + 2] / W[3 * physicalCellIndex])) * yNormal[faceIndex]));
-                    rhoGhost = W[3 * physicalCellIndex] + (pGhost - pPhysical) / pow(soundSpeed,2);
-                    uGhost = (W[3 * physicalCellIndex + 1] / W[3 * physicalCellIndex]) - xNormal[faceIndex] * (pPhysical - pGhost) / (W[3 * physicalCellIndex] * soundSpeed);
-                    vGhost = (W[3 * physicalCellIndex + 2] / W[3 * physicalCellIndex]) - yNormal[faceIndex] * (pPhysical - pGhost) / (W[3 * physicalCellIndex] * soundSpeed);
+                    pPhysical = (fluidProperties[2] - 1) * ((W[4 * physicalCellIndex + 3] / W[4 * physicalCellIndex]) - 0.5 * W[4 * physicalCellIndex] * pow(sqrt(pow(W[4 * physicalCellIndex + 1],2) + pow(W[4 * physicalCellIndex + 2],2)) / W[4 * physicalCellIndex],2));
+                    pGhost = 0.5 * (fluidProperties[1] + pPhysical - W[4 * physicalCellIndex] *soundSpeed * ((flowVelocity[0] - (W[4 * physicalCellIndex + 1] / W[4 * physicalCellIndex])) * xNormal[faceIndex] + (flowVelocity[1] - (W[4 * physicalCellIndex + 2] / W[4 * physicalCellIndex])) * yNormal[faceIndex]));
+                    rhoGhost = W[4 * physicalCellIndex] + (pGhost - pPhysical) / pow(soundSpeed,2);
+                    uGhost = (W[4 * physicalCellIndex + 1] / W[4 * physicalCellIndex]) - xNormal[faceIndex] * (pPhysical - pGhost) / (W[4 * physicalCellIndex] * soundSpeed);
+                    vGhost = (W[4 * physicalCellIndex + 2] / W[4 * physicalCellIndex]) - yNormal[faceIndex] * (pPhysical - pGhost) / (W[4 * physicalCellIndex] * soundSpeed);
                     EGhost = pGhost / ((fluidProperties[2] - 1)) + 0.5 * rhoGhost * (pow(uGhost,2) + pow(vGhost,2));
                 } else {
                     // Subsonic outflow
                     soundSpeed = sqrt(fluidProperties[2] * fluidProperties[3] * fluidProperties[4]);
-                    pPhysical = (fluidProperties[2] - 1) * ((W[3 * physicalCellIndex + 3] / W[3 * physicalCellIndex]) - 0.5 * W[3 * physicalCellIndex] * pow(sqrt(pow(W[3 * physicalCellIndex + 1],2) + pow(W[3 * physicalCellIndex + 2],2)) / W[3 * physicalCellIndex],2));
+                    pPhysical = (fluidProperties[2] - 1) * ((W[4 * physicalCellIndex + 3] / W[4 * physicalCellIndex]) - 0.5 * W[4 * physicalCellIndex] * pow(sqrt(pow(W[4 * physicalCellIndex + 1],2) + pow(W[4 * physicalCellIndex + 2],2)) / W[4 * physicalCellIndex],2));
                     pGhost = fluidProperties[1];
-                    rhoGhost = W[3 * physicalCellIndex] + (pGhost - pPhysical) / pow(soundSpeed,2);
-                    uGhost = (W[3 * physicalCellIndex + 1] / W[3 * physicalCellIndex]) + xNormal[faceIndex] * (pPhysical - pGhost) / (W[3 * physicalCellIndex] * soundSpeed);
-                    vGhost = (W[3 * physicalCellIndex + 2] / W[3 * physicalCellIndex]) + yNormal[faceIndex] * (pPhysical - pGhost) / (W[3 * physicalCellIndex] * soundSpeed);
+                    rhoGhost = W[4 * physicalCellIndex] + (pGhost - pPhysical) / pow(soundSpeed,2);
+                    uGhost = (W[4 * physicalCellIndex + 1] / W[4 * physicalCellIndex]) + xNormal[faceIndex] * (pPhysical - pGhost) / (W[4 * physicalCellIndex] * soundSpeed);
+                    vGhost = (W[4 * physicalCellIndex + 2] / W[4 * physicalCellIndex]) + yNormal[faceIndex] * (pPhysical - pGhost) / (W[4 * physicalCellIndex] * soundSpeed);
                     EGhost = pGhost / ((fluidProperties[2] - 1)) + 0.5 * rhoGhost * (pow(uGhost,2) + pow(vGhost,2));
                 }
-                W[3 * c] = rhoGhost;
-                W[3 * c + 1] = rhoGhost * uGhost;
-                W[3 * c + 2] = rhoGhost * vGhost;
-                W[3 * c + 3] = rhoGhost * EGhost;
+                W[4 * c] = rhoGhost;
+                W[4 * c + 1] = rhoGhost * uGhost;
+                W[4 * c + 2] = rhoGhost * vGhost;
+                W[4 * c + 3] = rhoGhost * EGhost;
             } else {
                 if (dotProductResult < 0.0) {
                     // Supersonic inflow (the state is set to the farfield state)
                     totalEnergy = (fluidProperties[1] / ((fluidProperties[2] - 1)) + 0.5 * fluidProperties[0] * pow(velocityMagnitude,2));
-                    W[3 * c] = fluidProperties[0];
-                    W[3 * c + 1] = fluidProperties[0] * flowVelocity[0];
-                    W[3 * c + 2] = fluidProperties[0] * flowVelocity[1];
-                    W[3 * c + 3] = fluidProperties[0] * totalEnergy;
+                    W[4 * c] = fluidProperties[0];
+                    W[4 * c + 1] = fluidProperties[0] * flowVelocity[0];
+                    W[4 * c + 2] = fluidProperties[0] * flowVelocity[1];
+                    W[4 * c + 3] = fluidProperties[0] * totalEnergy;
                 } else {
                     // Supersonic outflow (the state is set to the physical state)
-                    W[3 * c] = W[3 * physicalCellIndex];
-                    W[3 * c + 1] = W[3 * physicalCellIndex + 1];
-                    W[3 * c + 2] = W[3 * physicalCellIndex + 2];
-                    W[3 * c + 3] = W[3 * physicalCellIndex + 3];
+                    W[4 * c] = W[4 * physicalCellIndex];
+                    W[4 * c + 1] = W[4 * physicalCellIndex + 1];
+                    W[4 * c + 2] = W[4 * physicalCellIndex + 2];
+                    W[4 * c + 3] = W[4 * physicalCellIndex + 3];
                 }
             }
 
@@ -150,6 +165,23 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
     }
 }
 
+/**
+ * Calculates the fluxes.
+ * 
+ * @param n The grid size (nxn).
+ * @param MachNumber The Mach number of the flow.
+ * @param AoA The angle of attack in degrees.
+ * @param fluidProperties An array containing the fluid properties: [rhoInf, pInf, gamma, R, TInf].
+ * @param faceNumber The total number of faces.
+ * @param cellNumber The total number of cells.
+ * @param faceToCellsLeft A vector containing the index of the cell on the left of each face.
+ * @param faceToCellsRight A vector containing the index of the cell on the right of each face.
+ * @param xNormal A vector containing the x-component of the normal vector of each face.
+ * @param yNormal A vector containing the y-component of the normal vector of each face.
+ * @param W A vector containing the flow variables.
+ * @param Fc A vector to store the fluxes.
+ * @param R A vector to store the residuals.
+ */
 void Calculateflux(int n, double MachNumber, double AoA, double fluidProperties[5], int faceNumber, int cellNumber, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& Fc, std::vector<double>& R){
     // Il faut tout d'abord itérer sur les arêtes.
 

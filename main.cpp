@@ -35,9 +35,9 @@ int main() {
     readCoordinates(filename, n, xCoords, yCoords);
 
     // Determine the connectivity between faces and cells
-    std::vector<int> faceToCellsLeft, faceToCellsRight, cellToFaces;
+    std::vector<int> faceToCellsLeft, faceToCellsRight, cellToFaces, faceToNodes;
     int faceNumber = 0, cellNumber = 0;
-    connectivity(n, faceToCellsLeft, faceToCellsRight, cellToFaces, faceNumber, cellNumber);
+    connectivity(n, xCoords, yCoords, faceToCellsLeft, faceToCellsRight, cellToFaces, faceToNodes, faceNumber, cellNumber);
 
     // Calculate the volume of each cell
     std::vector<double> volume;

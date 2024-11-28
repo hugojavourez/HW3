@@ -1,6 +1,6 @@
 #include "grid.h"
 #include "solver.h"
-#include "math.h"
+#include "solution.h"
 
 #include <iostream>
 #include <vector>

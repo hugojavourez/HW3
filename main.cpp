@@ -64,7 +64,7 @@ int main() {
     BoundaryConditions(n, MachNumber,  AoA, fluidProperties, cellType, cellToFaces, xNormal, yNormal, W, R);
 
     // Solve
-    std::vector<double> Fc;
+    
     // ...
     
     return 0;

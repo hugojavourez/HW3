@@ -1,6 +1,5 @@
 {
     packages = {
-        [[C:\Users\IdMax Inc\AppData\Local\.xmake\packages\g\git\2.20.0\65b10f9e7885425fbf2d2abaad2a61a9]],
-        [[C:\Users\IdMax Inc\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c]]
+        [[C:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c]]
     }
 }

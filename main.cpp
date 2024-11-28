@@ -66,6 +66,12 @@ int main() {
     // Solve
     std::vector<double> Fc;
     // ...
-    
+
+    // Post-process
+    double cL, cD, cM; // Lift, drag and moment coefficients
+    aerodynamicCoefficients(n, MachNumber, AoA, fluidProperties, xCoords, yCoords, faceToCellsRight, faceToNodes, length, xNormal, yNormal, W, cL, cD, cM);
+    std::string pFieldFilename = "pressureField.txt"; // Name of the file to write the pressure field around the airfoil
+    pressureField(n, fluidProperties, cellType, xCoords, yCoords, faceToCellsRight, faceToCellsLeft, cellToFaces, faceToNodes, W, pFieldFilename);
+
     return 0;
 }

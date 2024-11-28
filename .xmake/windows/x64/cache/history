@@ -48,6 +48,8 @@
         [[xmake lua C:\Users\javou\scoop\apps\xmake\current\actions\build\cleaner.lua]],
         "xmake ",
         "xmake ",
-        "xmake "
+        "xmake ",
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\config.lua]]
     }
 }

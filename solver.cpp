@@ -182,32 +182,128 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
  * @param Fc A vector to store the fluxes.
  * @param R A vector to store the residuals.
  */
-void Calculateflux(int n, double MachNumber, double AoA, double fluidProperties[5], int faceNumber, int cellNumber, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& Fc, std::vector<double>& R){
+
+void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<int> &faceToCellsLeft, std::vector<int> &faceToCellsRight, std::vector<double> &length,std::vector<double> &cellvolume, std::vector<double> &xNormal, std::vector<double> &yNormal, std::vector<double> &W, std::vector<double>& LC){
     // Il faut tout d'abord itérer sur les arêtes.
 
     for (int i = 0; i < faceNumber; i++ ){
-        //get les cellules concernés
+        // Get les cellules concernés
         int id_cell_left = faceToCellsLeft[i];
         int id_cell_right = faceToCellsRight[i];
 
         // on calcule les proprièté au cellules de gauche
-        double rho_left = W[id_cell_left];
-        double u_left = W[id_cell_left + 1]/W[id_cell_left];
-        double v_left = W[id_cell_left + 2]/W[id_cell_left];
-        double E_left = W[id_cell_left + 3]/W[id_cell_left];
-        double p_left = (fluidProperties[2]-1)*(W[id_cell_left + 3] - 0.5*(rho_left*(u_left*u_left + v_left*v_left)));
+        double rho_left = W[4*id_cell_left];
+        double u_left = W[4*id_cell_left + 1]/W[4*id_cell_left];
+        double v_left = W[4*id_cell_left + 2]/W[4*id_cell_left];
+        double E_left = W[4*id_cell_left + 3]/W[4*id_cell_left];
+        double p_left = (fluidProperties[2]-1)*(W[4*id_cell_left + 3] - 0.5*(rho_left*(u_left*u_left + v_left*v_left)));
 
-        // on calcule les proprièté au cellules de droite
-        double rho_right = W[id_cell_right];
-        double u_right = W[id_cell_right + 1]/W[id_cell_right];
-        double v_right = W[id_cell_right + 2]/W[id_cell_right];
-        double E_right = W[id_cell_right + 3]/W[id_cell_right];
-        double p_right = (fluidProperties[2]-1)*(W[id_cell_right + 3] - 0.5*(rho_right*(u_right*u_right + v_right*v_right)));
+        // On calcule les proprièté au cellules de droite
+        double rho_right = W[4*id_cell_right];
+        double u_right = W[4*id_cell_right + 1]/W[4*id_cell_right];
+        double v_right = W[4*id_cell_right + 2]/W[4*id_cell_right];
+        double E_right = W[4*id_cell_right + 3]/W[4*id_cell_right];
+        double p_right = (fluidProperties[2]-1)*(W[4*id_cell_right + 3] - 0.5*(rho_right*(u_right*u_right + v_right*v_right)));
 
-        //ensuite, construire la matrice de flux
+        // Ensuite, Calculer les propriètés au arêtes
+        double rho = 0.5*(rho_left + rho_right);
+        double u = 0.5*(u_left + u_right);
+        double v = 0.5*(v_left + v_right);
+        double E = 0.5*(E_right + E_left);
+        double p = 0.5*(p_left + p_right);
+
+        // Maintenant on construit F et G, les flux lié respectivement à x et à y
+        std::vector<double> F = {
+            rho*u, 
+            rho *u*u + p,
+            rho*u*v,
+            u*(rho*(E+p)) };
+        std::vector<double> G = {
+            rho*v, 
+            rho *u*v,
+            rho*v*v + p,
+            v*(rho*(E+p))};
+        
+        // Finally, we construct the fluxes Flux_normal = xNormal[i] *F + yNormal[i] * G;
+
+        for (double &Element : F){
+            Element *= xNormal[i]; //xNormal[i] *F 
+        }
+
+        for (double &Element : G){
+            Element *= yNormal[i]; // yNormal[i] * G
+        }
+        
+        std::vector<double> Flux_Normal(G.size());
+
+        for (int j = 0; j< Flux_Normal.size();j++){
+            Flux_Normal[j] = F[j] + G[j]; //Flux_normal = xNormal[i] *F + yNormal[i] * G
+        }
+
+
+        for (double &Element : Flux_Normal){
+            Element *= length[i]; // on multiplie flux par face lenght
+            
+        }
+
+        // now we must calculate the Residu (LC) and add / remove from the face
+        int index_res = 0;
+        for (double &Element : Flux_Normal){
+            double Left_residual = Element/cellvolume[id_cell_left];
+            double Right_residual = Element/cellvolume[id_cell_right];
+            LC[4*id_cell_left+index_res] -= Element/cellvolume[id_cell_left];
+            LC[4*id_cell_right+index_res] += Element/cellvolume[id_cell_right];
+            index_res++;
+        };
+
+        //Lc is what we want
 
     }   
+} 
 
+void RK4(double dt,double t,  int n, double MachNumber, double AoA, double fluidProperties[5], int faceNumber, int cellNumber,std::vector<double> &cellvolume, std::vector<int> &faceToCellsLeft, std::vector<int> &faceToCellsRight, std::vector<double> &length, std::vector<double> &xNormal, std::vector<double> &yNormal, std::vector<double> &W,std::vector<double>& LC){
+    
+    double live_time = 0;
+    std::vector<double> W_0;
+    std::vector<double> LC_0;
+    std::vector<double> LC_1;
+    std::vector<double> LC_2;
+    std::vector<double> LC_3;
+    std::vector<double> rho (cellNumber);
+    std::vector<double> u(cellNumber);
+    std::vector<double> v(cellNumber);
+    std::vector<double> E(cellNumber);
+    std::vector<double> p(cellNumber);
+    
+    while (live_time<0){
+        // NOTE THAT LC HAS ALREADY BEEN DIVIDED BY THE CELL AREA AND MULTIPLIED BY FACE LENGHT
+       W_0 = W;
+        
+       for (int i = 0 ; i<cellNumber*4; i++){
+        CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, LC); // LC(0)
+        LC_0 = LC;
+        W[i] = W_0[i]-(dt/2)*LC_0[i]; // W(1)
+        CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, LC); // LC(1)
+        LC_1 = LC;
+        W[i] = W_0[i]-(dt/2)*LC[i]; // W(2)
+        CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, LC); // LC(2)
+        LC_2 = LC;
+        W[i] = W_0[i]-(dt)*LC[i]; // W(3)
+        CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, LC); // LC(3)
+        LC_3 = LC;
+        W[i] = W_0[i] - (dt/6) * (LC_0[i] + LC_1[i] + LC_2[i] + LC_3[i]); //W(4) = W(n+1)
+       }
+
+        // Now that we have W(n+1), lets calculate our properties
+       for (int i = 0 ; i<cellNumber; i++){
+        rho[i] = W[4*i];
+        u[i] = W[4*i + 1] / W[4*i];
+        v[i] = W[4*i + 2] / W[4*i];
+        E[i] = W[4*i + 3] / W[4*i];
+        p[i] = (fluidProperties[2]-1)*(E[i] - 0.5*(rho[i]*(u[i]*u[i] + v[i]*v[i])));
+       }
+        live_time += dt;
+    }
 }
 
 

@@ -48,6 +48,22 @@ void Initialization(int n, double MachNumber, double AoA, double fluidProperties
     }
 }
 
+/**
+ * Applies the boundary conditions to the flow variables: farfield and wall.
+ * 
+ * @param n The grid size (nxn).
+ * @param MachNumber The Mach number of the flow.
+ * @param AoA The angle of attack in degrees.
+ * @param fluidProperties An array containing the fluid properties: [rhoInf, pInf, gamma, R, TInf].
+ * @param cellType A vector containing the type of each cell.
+ * @param cellToFaces A vector containing the index of the face between the physical and the ghost cell.
+ * @param xNormal A vector containing the x-component of the normal vector of each face.
+ * @param yNormal A vector containing the y-component of the normal vector of each face.
+ * @param W A vector containing the flow variables.
+ * @param R A vector containing the residuals.
+ * 
+ * The boundary conditions are applied to the ghost cells only.
+ */
 void BoundaryConditions(const int n, const double MachNumber, const double AoA, double fluidProperties[5], const std::vector<int>& cellType, std::vector<int>& cellToFaces, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R) {
     int physicalCellIndex; // Index of the physical cell touching the boundary
     int faceIndex; // Index of the face between the physical and the ghost cell

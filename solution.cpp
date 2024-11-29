@@ -64,6 +64,12 @@ void aerodynamicCoefficients(const int n, const double MachNumber, const double 
     cL = liftForce / (fluidProperties[0] * pow(MachNumber,2) * chordLength);
     cD = dragForce / (fluidProperties[0] * pow(MachNumber,2) * chordLength);
     cM = moment / (fluidProperties[0] * pow(MachNumber,2) * chordLength);
+
+    // Print the results
+    std::cout << "--- Aerodynamic coefficients ---" << std::endl;
+    std::cout << "Lift coefficient: " << cL << std::endl;
+    std::cout << "Drag coefficient: " << cD << std::endl;
+    std::cout << "Moment coefficient: " << cM << std::endl;
 }
 
 /**
@@ -86,7 +92,7 @@ void techplot(const int n, const double fluidProperties[5], const std::vector<do
     // Write the header
     file << "TITLE = \"Flow field\"" << std::endl;
     file << "VARIABLES = \"X\", \"Y\", \"Rho\", \"U\", \"V\", \"UVMagnitude\", \"P\"" << std::endl;
-    file << "ZONE T=\"Flow field\", I=" << totalPoints << ", J=" << totalFaces << ", F=POINT" << std::endl;
+    file << "ZONE T=\"Flow field\", I=" << n << ", J=" << n << ", F=POINT" << std::endl;
 
     // Loop on the nodes
     for (int i = 2 * n; i < totalPoints - (2 * n); i++) {
@@ -96,6 +102,9 @@ void techplot(const int n, const double fluidProperties[5], const std::vector<do
 
     // Close the file
     file.close();
+
+    // Say that the file was created successfully
+    std::cout << "Tecplot file '" << techplotFilename <<"' created successfully!" << std::endl;
 }
 
 /**
@@ -119,14 +128,18 @@ void techplot(const int n, const double fluidProperties[5], const std::vector<do
  * ...
  */
 void pressureField(const int n, const double fluidProperties[5], const std::vector<int>& cellType, const std::vector<double>& xCoords, const std::vector<double>& yCoords, const std::vector<int>& faceToCellsRight, const std::vector<int>& faceToCellsLeft, std::vector<int>& cellToFaces, const std::vector<int>& faceToNodes, const std::vector<double>& W, const std::string& pFieldFilename) {
+    int cellIndex; // Index of the physical cell touching the boundary
     int otherFaceIndex; // Index of the other face that forms the cell
     double faceCenterX1, faceCenterX2; // X-coordinates of the center of the faces
     double cellCenterX; // X-coordinates of the center of the cell
 
+    // Open the file
+    std::ofstream file(pFieldFilename);
+
     // Loop on the faces that form the airfoil
     for (int f = (n - 1) * 4; f < (n - 1) * 6; f += 2) {
         // Find the cell on the right of the face (the physical one)
-        int cellIndex = faceToCellsRight[f];
+        cellIndex = faceToCellsRight[f];
 
         // Find the other face that forms the cell
         otherFaceIndex = cellToFaces[4*cellIndex + 3];
@@ -140,8 +153,12 @@ void pressureField(const int n, const double fluidProperties[5], const std::vect
         double pSurface = (fluidProperties[2] - 1) * ((W[4 * cellIndex + 3] / W[4 * cellIndex]) - 0.5 * W[4 * cellIndex] * pow(sqrt(pow(W[4 * cellIndex + 1],2) + pow(W[4 * cellIndex + 2],2)) / W[4 * cellIndex],2));
 
         // Write the pressure to the file
-        std::ofstream file(pFieldFilename, std::ios::app);
         file << cellCenterX << " " << pSurface << std::endl;
-        file.close();
     }
+
+    // Close the file
+    file.close();
+
+    // Say that the file was created successfully
+    std::cout << "Pressure field file '" << pFieldFilename <<"' created successfully!" << std::endl;
 }

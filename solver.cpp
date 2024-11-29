@@ -179,10 +179,8 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
  * @param xNormal A vector containing the x-component of the normal vector of each face.
  * @param yNormal A vector containing the y-component of the normal vector of each face.
  * @param W A vector containing the flow variables.
- * @param Fc A vector to store the fluxes.
- * @param R A vector to store the residuals.
+ * @param LC A vector to store the residuals.
  */
-
 void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<int> &faceToCellsLeft, std::vector<int> &faceToCellsRight, std::vector<double> &length,std::vector<double> &cellvolume, std::vector<double> &xNormal, std::vector<double> &yNormal, std::vector<double> &W, std::vector<double>& LC){
     // Il faut tout d'abord itérer sur les arêtes.
 
@@ -205,7 +203,7 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
         double E_right = W[4*id_cell_right + 3]/W[4*id_cell_right];
         double p_right = (fluidProperties[2]-1)*(W[4*id_cell_right + 3] - 0.5*(rho_right*(u_right*u_right + v_right*v_right)));
 
-        // Ensuite, Calculer les propriètés au arêtes
+        // Ensuite, Calculer les propriètés à l'arète
         double rho = 0.5*(rho_left + rho_right);
         double u = 0.5*(u_left + u_right);
         double v = 0.5*(v_left + v_right);
@@ -269,7 +267,7 @@ void RK4(double dt,double t,  int n, double MachNumber, double AoA, double fluid
     std::vector<double> LC_1;
     std::vector<double> LC_2;
     std::vector<double> LC_3;
-    std::vector<double> rho (cellNumber);
+    std::vector<double> rho(cellNumber);
     std::vector<double> u(cellNumber);
     std::vector<double> v(cellNumber);
     std::vector<double> E(cellNumber);
@@ -277,31 +275,31 @@ void RK4(double dt,double t,  int n, double MachNumber, double AoA, double fluid
     
     while (live_time<0){
         // NOTE THAT LC HAS ALREADY BEEN DIVIDED BY THE CELL AREA AND MULTIPLIED BY FACE LENGHT
-       W_0 = W;
+        W_0 = W;
         
-       for (int i = 0 ; i<cellNumber*4; i++){
-        CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, LC); // LC(0)
-        LC_0 = LC;
-        W[i] = W_0[i]-(dt/2)*LC_0[i]; // W(1)
-        CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, LC); // LC(1)
-        LC_1 = LC;
-        W[i] = W_0[i]-(dt/2)*LC[i]; // W(2)
-        CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, LC); // LC(2)
-        LC_2 = LC;
-        W[i] = W_0[i]-(dt)*LC[i]; // W(3)
-        CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, LC); // LC(3)
-        LC_3 = LC;
-        W[i] = W_0[i] - (dt/6) * (LC_0[i] + LC_1[i] + LC_2[i] + LC_3[i]); //W(4) = W(n+1)
+        for (int i = 0 ; i<cellNumber*4; i++){
+            CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, LC); // LC(0)
+            LC_0 = LC;
+            W[i] = W_0[i]-(dt/2)*LC_0[i]; // W(1)
+            CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, LC); // LC(1)
+            LC_1 = LC;
+            W[i] = W_0[i]-(dt/2)*LC[i]; // W(2)
+            CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, LC); // LC(2)
+            LC_2 = LC;
+            W[i] = W_0[i]-(dt)*LC[i]; // W(3)
+            CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, LC); // LC(3)
+            LC_3 = LC;
+            W[i] = W_0[i] - (dt/6) * (LC_0[i] + LC_1[i] + LC_2[i] + LC_3[i]); //W(4) = W(n+1)
        }
 
         // Now that we have W(n+1), lets calculate our properties
-       for (int i = 0 ; i<cellNumber; i++){
-        rho[i] = W[4*i];
-        u[i] = W[4*i + 1] / W[4*i];
-        v[i] = W[4*i + 2] / W[4*i];
-        E[i] = W[4*i + 3] / W[4*i];
-        p[i] = (fluidProperties[2]-1)*(E[i] - 0.5*(rho[i]*(u[i]*u[i] + v[i]*v[i])));
-       }
+        for (int i = 0 ; i<cellNumber; i++){
+            rho[i] = W[4*i];
+            u[i] = W[4*i + 1] / W[4*i];
+            v[i] = W[4*i + 2] / W[4*i];
+            E[i] = W[4*i + 3] / W[4*i];
+            p[i] = (fluidProperties[2]-1)*(E[i] - 0.5*(rho[i]*(u[i]*u[i] + v[i]*v[i])));
+        }
         live_time += dt;
     }
 }

@@ -1,4 +1,5 @@
 #include "math.h"
+#include "manager.h"
 
 #include <string>
 #include <iostream>

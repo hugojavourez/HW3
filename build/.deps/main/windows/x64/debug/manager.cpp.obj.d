@@ -1,6 +1,6 @@
 {
     files = {
-        "solver.cpp"
+        "manager.cpp"
     },
     values = {
         [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64\cl.exe]],
@@ -23,10 +23,9 @@
     depfiles_cl_json = "{\
     \"Version\": \"1.2\",\
     \"Data\": {\
-        \"Source\": \"c:\\\\users\\\\javou\\\\desktop\\\\hw3\\\\solver.cpp\",\
+        \"Source\": \"c:\\\\users\\\\javou\\\\desktop\\\\hw3\\\\manager.cpp\",\
         \"ProvidedModule\": \"\",\
         \"Includes\": [\
-            \"c:\\\\users\\\\javou\\\\desktop\\\\hw3\\\\math.h\",\
             \"c:\\\\users\\\\javou\\\\desktop\\\\hw3\\\\manager.h\",\
             \"c:\\\\program files (x86)\\\\microsoft visual studio\\\\2022\\\\buildtools\\\\vc\\\\tools\\\\msvc\\\\14.42.34433\\\\include\\\\iostream\",\
             \"c:\\\\program files (x86)\\\\microsoft visual studio\\\\2022\\\\buildtools\\\\vc\\\\tools\\\\msvc\\\\14.42.34433\\\\include\\\\yvals_core.h\",\

@@ -1,6 +1,8 @@
 #include "math.h"
 #include "manager.h"
 
+#include <cmath>
+#include <cstdlib>
 #include <string>
 #include <iostream>
 #include <vector>
@@ -204,7 +206,9 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
     double rho_left, u_left, v_left, E_left, p_left;
     double rho_right, u_right, v_right, E_right, p_right;
     double rho, u, v, E, p;
-    
+    std::vector<double> F1_Roe,F5_Roe,F234_Roe,A_Roe; 
+    double F1_Roe_term, F234_Roe_term,F5_Roe_term ;
+    double rho_Roe, u_Roe, v_Roe, H_Roe, c_Roe, V_Roe, q2_Roe, H_left, H_right,Delta_V;
 
     for (int i = 0; i < faceNumber; i++ ){
         // Get les cellules concernés
@@ -231,6 +235,32 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
         v = 0.5*(v_left + v_right);
         E = 0.5*(E_right + E_left);
         p = 0.5*(p_left + p_right);
+
+
+        // Now we calculate the the properties of Roe
+        rho_Roe = std::sqrt(rho_left*rho_right);
+        u_Roe = (u_left*std::sqrt(rho_left) + u_right*std::sqrt(rho_right)) / (std::sqrt(rho_left)* std::sqrt(rho_right));
+        v_Roe = (v_left*std::sqrt(rho_left) + u_right*std::sqrt(rho_right)) / (std::sqrt(rho_left)* std::sqrt(rho_right));
+        H_left = (rho_left*E_left + p_left)/rho_left;
+        H_right = (rho_right*E_right + p_right)/rho_right;
+        H_Roe = (H_left*std::sqrt(rho_left) + H_right*std::sqrt(rho_right)) / (std::sqrt(rho_left)* std::sqrt(rho_right));
+        q2_Roe = u_Roe*u_Roe + v_Roe*v_Roe;
+        V_Roe = u_Roe * xNormal[i] + v_Roe * yNormal[i];
+        c_Roe = std::sqrt((fluidProperties[2]-1)*(H_Roe-q2_Roe/2));
+        Delta_V = (u_right - u_left)*xNormal[i] + (v_right - v_left)*yNormal[i];
+
+        // Now we Build the F1
+        F1_Roe_term = std::abs(V_Roe - c_Roe) * (((p_right-p_left) - rho_Roe*c_Roe*Delta_V)/(2*c_Roe*c_Roe));
+        F1_Roe[0] =  F1_Roe_term;
+        F1_Roe[1] =  F1_Roe_term*(u_Roe - c_Roe*xNormal[i]);
+        F1_Roe[2] =  F1_Roe_term*(v_Roe - c_Roe*yNormal[i]);
+        F1_Roe[3] =  F1_Roe_term*(H_Roe - c_Roe*V_Roe);
+
+        //Now we Build F234
+
+
+        //Now we Build F5
+
 
         // Maintenant on construit F et G, les flux lié respectivement à x et à y
         std::vector<double> F = {

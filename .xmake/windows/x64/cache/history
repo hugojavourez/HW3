@@ -61,6 +61,8 @@
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\update_intellisense.lua .vscode clangd]],
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\config.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\config.lua]]
     }
 }

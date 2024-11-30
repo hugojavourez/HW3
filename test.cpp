@@ -33,7 +33,7 @@ void volumeTest(const int n, const int cellNumber, std::vector<double>& xCoords,
 
     // Write the node coordinates
     for (int i = 0; i < n * n; i++) {
-        file << std::fixed << std::setprecision(6) << xCoords[i] << " " << yCoords[i] << std::endl; // << " " << 1 
+        file << std::fixed << std::setprecision(6) << xCoords[i] << " " << yCoords[i] << std::endl;
     }
 
     // Write the element connectivity (the nodes forming each cell)
@@ -46,11 +46,6 @@ void volumeTest(const int n, const int cellNumber, std::vector<double>& xCoords,
 
     // Loop on the cells
     for (int i = 0; i < cellNumber; i++) {
-        file << faceToNodes[cellToFaces[i*4]*2]+1 << " "
-             << faceToNodes[cellToFaces[i*4]*2+1]+1 << " "
-             << faceToNodes[cellToFaces[i*4+3]*2+1]+1 << " "
-             << faceToNodes[cellToFaces[i*4+3]*2]+1;
-
         // Get the coordinates of the faces (which form the cell) centroids
         // Get the coordinates of the face 1 centroid
         xCoordFace1 = 0.5*(xCoords[faceToNodes[cellToFaces[i*4]*2]] + xCoords[faceToNodes[cellToFaces[i*4]*2+1]]);

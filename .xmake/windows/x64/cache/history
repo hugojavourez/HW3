@@ -1,6 +1,5 @@
 {
     cmdlines = {
-        "__macro_begin__",
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\default_target.lua]],
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\targetpath.lua default]],
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\target_rundir.lua default]],
@@ -60,6 +59,8 @@
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\config.lua]],
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\update_intellisense.lua .vscode clangd]],
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\config.lua]],
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\config.lua]],
         [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],

@@ -206,8 +206,8 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
     double rho_left, u_left, v_left, E_left, p_left;
     double rho_right, u_right, v_right, E_right, p_right;
     double rho, u, v, E, p;
-    std::vector<double> F1_Roe,F5_Roe,F234_Roe,A_Roe; 
-    double F1_Roe_term, F234_Roe_term,F5_Roe_term ;
+    std::vector<double> F1_Roe(4),F5_Roe(4),F234_Roe(4),A_Roe(4); 
+    double F1_Roe_term,F5_Roe_term ;
     double rho_Roe, u_Roe, v_Roe, H_Roe, c_Roe, V_Roe, q2_Roe, H_left, H_right,Delta_V;
 
     for (int i = 0; i < faceNumber; i++ ){
@@ -236,7 +236,7 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
         E = 0.5*(E_right + E_left);
         p = 0.5*(p_left + p_right);
 
-
+        // ADDING ROE CALCULATION
         // Now we calculate the the properties of Roe
         rho_Roe = std::sqrt(rho_left*rho_right);
         u_Roe = (u_left*std::sqrt(rho_left) + u_right*std::sqrt(rho_right)) / (std::sqrt(rho_left)* std::sqrt(rho_right));
@@ -257,10 +257,23 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
         F1_Roe[3] =  F1_Roe_term*(H_Roe - c_Roe*V_Roe);
 
         //Now we Build F234
-
+        F234_Roe[0] = V_Roe*(((rho_right-rho_left)- (p_right-p_left)/(c_Roe*c_Roe))*1 + rho_Roe*0);
+        F234_Roe[1] = V_Roe*(((rho_right-rho_left)- (p_right-p_left)/(c_Roe*c_Roe))*u_Roe + rho_Roe*((u_right - u_left) - (Delta_V*xNormal[i])));
+        F234_Roe[2] = V_Roe*(((rho_right-rho_left)- (p_right-p_left)/(c_Roe*c_Roe))*v_Roe + rho_Roe*((v_right - v_left) - (Delta_V*yNormal[i])));
+        F234_Roe[3] = V_Roe*(((rho_right-rho_left)- (p_right-p_left)/(c_Roe*c_Roe))*(q2_Roe/2) + rho_Roe*(u_Roe*(u_right-u_left) + v_Roe*(v_right-v_left) - V_Roe*Delta_V));
 
         //Now we Build F5
+        F5_Roe_term = std::abs(V_Roe + c_Roe) * (((p_right+p_left) - rho_Roe*c_Roe*Delta_V)/(2*c_Roe*c_Roe));
+        F5_Roe[0] =  F5_Roe_term;
+        F5_Roe[1] =  F5_Roe_term*(u_Roe +  c_Roe*xNormal[i]);
+        F5_Roe[2] =  F5_Roe_term*(v_Roe + c_Roe*yNormal[i]);
+        F5_Roe[3] =  F5_Roe_term*(H_Roe + c_Roe*V_Roe);
 
+
+        // Now we build the A_Roe
+        for (int i = 0; i<A_Roe.size();i++){
+            A_Roe[i] = F1_Roe[i] + F234_Roe[i] + F5_Roe[i];
+        }
 
         // Maintenant on construit F et G, les flux lié respectivement à x et à y
         std::vector<double> F = {
@@ -274,6 +287,14 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
             rho*v*v + p,
             v*(rho*(E+p))};
         
+
+        // We now substrat the row term, 
+        for (int i = 0; i<A_Roe.size();i++){
+            F[i] -= A_Roe[i];
+            G[i] -= A_Roe[i];
+        }
+
+
         // Finally, we construct the fluxes Flux_normal = xNormal[i] *F + yNormal[i] * G;
 
         for (double &Element : F){

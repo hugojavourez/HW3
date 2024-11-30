@@ -1,9 +1,12 @@
 #include "grid.h"
 #include "solver.h"
 #include "solution.h"
+#include "test.h"
 
 #include <iostream>
 #include <vector>
+#include <sstream>
+#include <filesystem>
 
 /**
  * Parameters of the simulation.
@@ -26,12 +29,11 @@ double fluidProperties[5] = {rhoInf, pInf, gamma, R, TInf};
  * Main function.
  */
 int main() {
-
-    std::string filename = "NACA0012grids/" + std::to_string(n) + "x" + std::to_string(n) + ".x"; // Construct the file path
-    
-    std::vector<double> xCoords, yCoords; // Vectors to store the x and y coordinates of the nodes
+    // Get the file path of the grid
+    std::string filename = "../../../../NACA0012grids/" + std::to_string(n) + "x" + std::to_string(n) + ".x"; // Construct the file path
 
     // Read the coordinates from the file
+    std::vector<double> xCoords, yCoords;
     readCoordinates(filename, n, xCoords, yCoords);
 
     // Determine the connectivity between faces and cells
@@ -41,11 +43,11 @@ int main() {
 
     // Calculate the volume of each cell
     std::vector<double> volume;
-    cellVolume(n, xCoords, yCoords, volume);
+    cellVolume(n, cellNumber, xCoords, yCoords, volume);
 
     // Calculate the length of each face
     std::vector<double> length;
-    faceLength(n, xCoords, yCoords, length);
+    faceLength(n, faceNumber, xCoords, yCoords, faceToNodes, length);
 
     // Calculate the normal vector of each face
     std::vector<double> xNormal, yNormal;
@@ -54,6 +56,16 @@ int main() {
     // Determine the type of each face and cell
     std::vector<int> faceType, cellType;
     faceAndCellTypes(n, faceType, cellType);
+
+    // Specify the directory where the file will be created
+    std::string outputDirectory = "../../../../output/";
+    std::filesystem::create_directories(outputDirectory); // Create the directory if it doesn't exist
+
+    // Tests
+    std::cout << "Running tests..." << std::endl;
+    std::string tecplotFilename = outputDirectory + "volumeTest.dat"; // Name of the file to write the tecplot file
+    volumeTest(n, cellNumber, xCoords, yCoords, cellToFaces, faceToNodes, volume, tecplotFilename);
+
 
     // Initialize the flow variables
     std::vector<double> W;
@@ -70,7 +82,7 @@ int main() {
     // Post-process
     double cL, cD, cM; // Lift, drag and moment coefficients
     aerodynamicCoefficients(n, MachNumber, AoA, fluidProperties, xCoords, yCoords, faceToCellsRight, faceToNodes, length, xNormal, yNormal, W, cL, cD, cM);
-    std::string pFieldFilename = "pressureField.txt"; // Name of the file to write the pressure field around the airfoil
+    std::string pFieldFilename = outputDirectory + "pressureField.txt"; // Name of the file to write the pressure field around the airfoil
     pressureField(n, fluidProperties, cellType, xCoords, yCoords, faceToCellsRight, faceToCellsLeft, cellToFaces, faceToNodes, W, pFieldFilename);
 
     return 0;

@@ -1,10 +1,18 @@
 {
     cmdlines = {
+<<<<<<< HEAD
+=======
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\default_target.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\targetpath.lua default]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\target_rundir.lua default]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\target_runenvs.lua default]],
+>>>>>>> 76be386da91cf9eab867bad8767ff004b57b4c95
         "xmake run main",
         "xmake run main",
         "xmake run main",
         "xmake run main",
         "xmake run main",
+<<<<<<< HEAD
         "xmake run main",
         "xmake run main",
         "xmake run main",
@@ -65,5 +73,44 @@
         "xmake run main",
         "xmake run main",
         "xmake run main"
+=======
+        "xmake run",
+        "xmake run",
+        "xmake check",
+        "xmake f -m debug",
+        "xmake ",
+        [[xmake lua C:\Users\javou\scoop\apps\xmake\current\modules\private\utils\statistics.lua]],
+        [[xmake lua C:\Users\javou\scoop\apps\xmake\current\actions\build\cleaner.lua]],
+        "xmake ",
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\config.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\config.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.8\assets\config.lua]],
+        "xmake ",
+        [[xmake lua C:\Users\javou\scoop\apps\xmake\current\modules\private\utils\statistics.lua]],
+        [[xmake lua C:\Users\javou\scoop\apps\xmake\current\actions\build\cleaner.lua]],
+        "xmake ",
+        "xmake ",
+        "xmake ",
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\config.lua]],
+        "xmake ",
+        [[xmake lua C:\Users\javou\scoop\apps\xmake\current\modules\private\utils\statistics.lua]],
+        [[xmake lua C:\Users\javou\scoop\apps\xmake\current\actions\build\cleaner.lua]],
+        "xmake ",
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\config.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\config.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\update_intellisense.lua .vscode clangd]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\config.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\config.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\explorer.lua]],
+        [[xmake l c:\Users\kamal\.vscode\extensions\tboox.xmake-vscode-2.3.9\assets\config.lua]]
+>>>>>>> 76be386da91cf9eab867bad8767ff004b57b4c95
     }
 }

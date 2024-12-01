@@ -435,8 +435,6 @@ void WriteTecplotFile(const std::string & filename,
 
     writeCellVariable(Volume);
 
-
-
     outfile.close();
 
 

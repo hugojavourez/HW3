@@ -1,4 +1,7 @@
 {
+    files = {
+        "manager.cpp"
+    },
     depfiles_cl_json = "{\
     \"Version\": \"1.2\",\
     \"Data\": {\
@@ -138,8 +141,5 @@
             "-external:W0",
             [[-external:IC:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]]
         }
-    },
-    files = {
-        "manager.cpp"
     }
 }

@@ -122,7 +122,20 @@
             \"c:\\\\users\\\\kamal\\\\onedrive\\\\polytechnique\\\\dess-maitrise\\\\session 3\\\\mec6602 - transonic aerodynamics\\\\homework_3_official\\\\hw3\\\\solver.h\",\
             \"c:\\\\users\\\\kamal\\\\onedrive\\\\polytechnique\\\\dess-maitrise\\\\session 3\\\\mec6602 - transonic aerodynamics\\\\homework_3_official\\\\hw3\\\\solution.h\",\
             \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\fstream\",\
-            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\__msvc_filebuf.hpp\"\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\__msvc_filebuf.hpp\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\filesystem\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\algorithm\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\__msvc_minmax.hpp\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\chrono\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\__msvc_chrono.hpp\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\ratio\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\xfilesystem_abi.h\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\iomanip\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\xlocmon\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\xloctime\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\locale\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\xlocbuf\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\xlocmes\"\
         ],\
         \"ImportedModules\": [],\
         \"ImportedHeaderUnits\": []\

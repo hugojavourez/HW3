@@ -1,9 +1,2 @@
-[ 25%]: compiling.debug bcdata.cpp
-[ 50%]: compiling.debug main.cpp
-[ 75%]: compiling.debug solver.cpp
-C:\Users\kamal\OneDrive\PolyTechnique\DESS-MAITRISE\Session 3\MEC6602 - Transonic Aerodynamics\HOMEWORK_3_OFFICIAL\HW3\main.cpp(51) : warning C4700: uninitialized local variable 'cellNumber' used
-C:\Users\kamal\OneDrive\PolyTechnique\DESS-MAITRISE\Session 3\MEC6602 - Transonic Aerodynamics\HOMEWORK_3_OFFICIAL\HW3\main.cpp(51) : warning C4700: uninitialized local variable 'faceNumber' used
-C:\Users\kamal\OneDrive\PolyTechnique\DESS-MAITRISE\Session 3\MEC6602 - Transonic Aerodynamics\HOMEWORK_3_OFFICIAL\HW3\solver.cpp(37) : warning C4700: uninitialized local variable 'Vc' used
-[ 87%]: linking.debug main.exe
-[100%]: build ok, spent 1.328s
+[100%]: build ok, spent 0.641s
 error: execv(C:\Users\kamal\OneDrive\PolyTechnique\DESS-MAITRISE\Session 3\MEC6602 - Transonic Aerodynamics\HOMEWORK_3_OFFICIAL\HW3\build\windows\x64\debug\main.exe ) failed(-1073741819)

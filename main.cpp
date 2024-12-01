@@ -1,7 +1,7 @@
 #include "grid.h"
 #include "solver.h"
 #include "solution.h"
-
+#include <fstream>
 #include <iostream>
 #include <vector>
 
@@ -21,13 +21,18 @@ double gamma = 1.4; // Heat capacity ratio
 double R = 287.0; // Specific gas constant
 double TInf = 288.15; // Temperature at infinity
 double fluidProperties[5] = {rhoInf, pInf, gamma, R, TInf};
+double dt = 0.5;
+double t = 250;
 
 /**
  * Main function.
  */
 int main() {
+    
 
-    std::string filename = "NACA0012grids/" + std::to_string(n) + "x" + std::to_string(n) + ".x"; // Construct the file path
+    std::string filename = "C:\\Users\\kamal\\OneDrive\\PolyTechnique\\DESS-MAITRISE\\Session 3\\MEC6602 - Transonic Aerodynamics\\HOMEWORK_3_OFFICIAL\\HW3\\NACA0012grids\\9x9.x"; // Construct the file path
+    
+    //std::string filename = "NACA0012grids/" + std::to_string(n) + "x" + std::to_string(n) + ".x"; // Construct the file path
     
     std::vector<double> xCoords, yCoords; // Vectors to store the x and y coordinates of the nodes
 
@@ -60,18 +65,33 @@ int main() {
     std::vector<double> R;
     Initialization(n, MachNumber,  AoA,  fluidProperties,  faceNumber, faceToCellsLeft, faceToCellsRight, xNormal, yNormal, W, R);
 
+
+
+    // Test With Techplot
+    WriteTecplotFile("D:\\output\\output.dat",
+                      n, n,
+                      xCoords,
+                      yCoords,
+                      volume);
+    
+
+
+
+
+
+
     // Apply the boundary conditions
-    BoundaryConditions(n, MachNumber,  AoA, fluidProperties, cellType, cellToFaces, xNormal, yNormal, W, R);
+    //BoundaryConditions(n, MachNumber,  AoA, fluidProperties, cellType, cellToFaces, xNormal, yNormal, W, R);
 
     // Solve
-    std::vector<double> Fc;
+    
     // ...
 
     // Post-process
-    double cL, cD, cM; // Lift, drag and moment coefficients
-    aerodynamicCoefficients(n, MachNumber, AoA, fluidProperties, xCoords, yCoords, faceToCellsRight, faceToNodes, length, xNormal, yNormal, W, cL, cD, cM);
-    std::string pFieldFilename = "pressureField.txt"; // Name of the file to write the pressure field around the airfoil
-    pressureField(n, fluidProperties, cellType, xCoords, yCoords, faceToCellsRight, faceToCellsLeft, cellToFaces, faceToNodes, W, pFieldFilename);
+    //double cL, cD, cM; // Lift, drag and moment coefficients
+    //aerodynamicCoefficients(n, MachNumber, AoA, fluidProperties, xCoords, yCoords, faceToCellsRight, faceToNodes, length, xNormal, yNormal, W, cL, cD, cM);
+    //std::string pFieldFilename = "pressureField.txt"; // Name of the file to write the pressure field around the airfoil
+    //pressureField(n, fluidProperties, cellType, xCoords, yCoords, faceToCellsRight, faceToCellsLeft, cellToFaces, faceToNodes, W, pFieldFilename);
 
     return 0;
 }

@@ -1,8 +1,10 @@
 #include "math.h"
 #include "manager.h"
-
+#include <fstream>
 #include <cmath>
 #include <cstdlib>
+#include <ostream>
+#include <stdio.h>
 #include <string>
 #include <iostream>
 #include <vector>
@@ -80,7 +82,7 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
     double totalEnergy; // Total energy of the physical cell or the farfield state (in the else part of the loop)
     double pPhysical; // Physical cell pressure
     double pGhost, rhoGhost, uGhost, vGhost, EGhost; // Ghost cell properties
-
+    std::cout << "boundary conditions function called" << std::endl;
     // Loop over the cells
     for (int c = 0; c < cellType.size(); c++) {
         // Check if the cell is a boundary cell (-1 if it is a wall, 1 if it is a farfield)
@@ -108,9 +110,9 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
 
             // Set the values of the ghost cell
             W[4 * c] = W[4 * physicalCellIndex];
-            W[4 * c + 1] = W[3 * c] * uGhost;
-            W[4 * c + 2] = W[3 * c] * vGhost;
-            W[4 * c + 3] = W[3 * c] * EGhost;
+            W[4 * c + 1] = W[4 * c] * uGhost;
+            W[4 * c + 2] = W[4 * c] * vGhost;
+            W[4 * c + 3] = W[4 * c] * EGhost;
 
             // Setting the residual to zero
             R[c] = 0;
@@ -393,4 +395,49 @@ void RK4(double dt,double t,  int n, double MachNumber, double AoA, double fluid
   }
 
     
+}
+
+void WriteTecplotFile(const std::string & filename,
+                      int NI, int NJ,
+                      const std::vector<double>& X,
+                      const std::vector<double>& Y,
+                      const std::vector<double>& Volume){
+
+    
+    int NCI = NI - 1;
+    int NCJ = NJ - 1;
+
+    std::ofstream outfile(filename);
+
+    // Write header
+    outfile << "TITLE = \"CFD Simulation Results\"\n";
+    outfile << "VARIABLES = \"X\", \"Y\", \"Volume\" \n";
+    outfile << "ZONE T=\"Flow Field\", I=" << NI << ", J=" << NJ << ", DATAPACKING=BLOCK\n";
+    outfile << "VARLOCATION=([3-7]=CELLCENTERED)\n";
+
+    
+    for (int idx = 0; idx < NI * NJ; ++idx) {
+        outfile << X[idx] << " ";
+    }
+    outfile << "\n";
+
+    for (int idx = 0; idx < NI * NJ; ++idx) {
+        outfile << Y[idx] << " ";
+    }
+    outfile << "\n";
+
+    auto writeCellVariable = [&](const std::vector<double>& var) {
+        for (int idx = 0; idx < NCI * NCJ; ++idx) {
+            outfile << var[idx] << " ";
+        }
+        outfile << "\n";
+    };
+
+    writeCellVariable(Volume);
+
+
+
+    outfile.close();
+
+
 }

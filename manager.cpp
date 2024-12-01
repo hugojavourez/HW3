@@ -43,12 +43,12 @@ void timeManager(const int iterationNumber, const std::string& caseName, double&
  * @param R A vector containing the residuals of each cell.
  * @param globalResidual The global residual for the iteration.
  */
-void convergenceManager(const int iterationNumber, const int cellNumber, const std::vector<double>& R, double globalResidual) {
+void convergenceManager(const int iterationNumber, const int cellNumber, const std::vector<double>& R, double &globalResidual) {
     // Loop over the cells to calculate the global residual
     for (int c = 0; c < cellNumber; c++) {
         globalResidual += R[c]*R[c];
     }
-    std::cout << "Global residual: " << globalResidual << std::endl;
+    //std::cout << "Global residual: " << globalResidual << std::endl;
     globalResidual = sqrt((1 / cellNumber) * globalResidual);
 
     // Print the global residual

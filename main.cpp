@@ -19,7 +19,7 @@ double AoA = 0.0; // Angle of attack in degrees
  * Physical properties of the flow.
  */
 double rhoInf = 1.225; // Density at infinity
-double pInf = 101325.0; // Pressure at infinity
+double pInf = 1.01325; // Pressure at infinity
 double gamma = 1.4; // Heat capacity ratio
 double R = 287.0; // Specific gas constant
 double TInf = 288.15; // Temperature at infinity

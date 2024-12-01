@@ -26,11 +26,11 @@
  * @param R A vector to store the residuals.
  */
 void Initialization(int n, double MachNumber, double AoA, double fluidProperties[5], int cellNumber, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R) {
-    std::cout << "Initialization function called" << std::endl;
+    //std::cout << "Initialization function called" << std::endl;
 
     // Rezise vectors to hold the values
     W.resize(4 * cellNumber);
-    R.resize(cellNumber);
+    R.resize(4 * cellNumber);
 
     // Calculate the flow velocity in each direction
     double flowDirection[2] = {cos(AoA), sin(AoA)};
@@ -49,7 +49,10 @@ void Initialization(int n, double MachNumber, double AoA, double fluidProperties
         W[4 * c + 3] = fluidProperties[0] * totalEnergy;
 
         // Calculate the residual vector R (initially set to zero)
-        R[c] = 0;
+        R[4*c] = 0;
+        R[4*c + 1] = 0;
+        R[4*c + 2] = 0;
+        R[4*c + 3] = 0;
     }
 }
 
@@ -69,8 +72,10 @@ void Initialization(int n, double MachNumber, double AoA, double fluidProperties
  * 
  * The boundary conditions are applied to the ghost cells only.
  */
+
+
 void BoundaryConditions(const int n, const double MachNumber, const double AoA, double fluidProperties[5], const std::vector<int>& cellType, std::vector<int>& cellToFaces, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R) {
-    std::cout << "Boundary conditions function called" << std::endl;
+    
     
     int physicalCellIndex; // Index of the physical cell touching the boundary
     int faceIndex; // Index of the face between the physical and the ghost cell
@@ -118,7 +123,10 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
             W[4 * c + 3] = W[4 * c] * EGhost;
 
             // Setting the residual to zero
-            R[c] = 0;
+            R[4*c] = 0;
+            R[4*c + 1] = 0;
+            R[4*c + 2] = 0;
+            R[4*c + 3] = 0;
 
         } else if (cellType[c] == 1) {
             // Determine the index of the physical cell touching the boundary
@@ -184,7 +192,10 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
             }
 
             // Setting the residual to zero
-            R[c] = 0;
+            R[4*c] = 0;
+            R[4*c + 1] = 0;
+            R[4*c + 2] = 0;
+            R[4*c + 3] = 0;
         }
     }
 }
@@ -265,7 +276,7 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
         // Now we calculate the the properties of Roe
         rho_Roe = std::sqrt(rho_left*rho_right);
         u_Roe = (u_left*std::sqrt(rho_left) + u_right*std::sqrt(rho_right)) / (std::sqrt(rho_left) + std::sqrt(rho_right));
-        v_Roe = (v_left*std::sqrt(rho_left) + u_right*std::sqrt(rho_right)) / (std::sqrt(rho_left) + std::sqrt(rho_right));
+        v_Roe = (v_left*std::sqrt(rho_left) + v_right*std::sqrt(rho_right)) / (std::sqrt(rho_left) + std::sqrt(rho_right));
         H_left = (rho_left*E_left + p_left)/rho_left;
         H_right = (rho_right*E_right + p_right)/rho_right;
         H_Roe = (H_left*std::sqrt(rho_left) + H_right*std::sqrt(rho_right)) / (std::sqrt(rho_left) + std::sqrt(rho_right));
@@ -301,17 +312,22 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
         }
 
         // Maintenant on construit F et G, les flux lié respectivement à x et à y
+
+        //std::vector<double> F = {
+        //xNormal[i], 
+        //yNormal[i],
+        //0,
+        //0};
+
+
         std::vector<double> F = {
             rho*V_c, 
             rho *u*V_c + p*xNormal[i],
             rho*v*V_c + p*yNormal[i],
             u*(rho*(E+p)) };
-        
-
         // We now substrat the row term, 
         for (int i = 0; i<A_Roe.size();i++){
             F[i] -= 0.5*A_Roe[i];
-            
         }
 
 
@@ -337,6 +353,37 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
     }   
 } 
 
+void Euler(double dt ,double t, int n, double MachNumber, double AoA, double fluidProperties[5], std::vector<int>& celltype, std::vector<int>& cellToFaces, int faceNumber, int cellNumber, std::vector<double>& cellvolume, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& length, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R){
+        double live_time = 0;
+        
+        while (live_time < t) {
+        // Save current state
+        std::vector<double> W_0 = W;
+
+        // Calculate residuals at current state
+        CalculateResidual(fluidProperties, faceNumber, faceToCellsLeft, faceToCellsRight,
+                          length, cellvolume, xNormal, yNormal, W, R);
+
+        // Apply boundary conditions
+        BoundaryConditions(n, MachNumber, AoA, fluidProperties, celltype, cellToFaces, xNormal, yNormal, W, R);
+
+        // Update the solution using Euler method
+        for (int i = 0; i < cellNumber * 4; ++i) {
+            W[i] = W_0[i] - dt * R[i];
+        }
+
+        // Advance time
+        live_time += dt;
+
+        // Print the residuals R
+        for (int i = 0; i < cellNumber; i++) {
+            std::cout << "R[" << i << "] = " << R[i] << std::endl;
+        }
+        }
+    }
+
+
+
 void RK4(double dt ,double t, int n, double MachNumber, double AoA, double fluidProperties[5], std::vector<int>& celltype, std::vector<int>& cellToFaces, int faceNumber, int cellNumber, std::vector<double>& cellvolume, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& length, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R){
     double live_time = 0;
     std::vector<double> W_0;
@@ -361,7 +408,7 @@ void RK4(double dt ,double t, int n, double MachNumber, double AoA, double fluid
     //std::vector<double> E(cellNumber);
     //std::vector<double> p(cellNumber);
     
-    while (globalResidual > 0.00001 || k > 10){
+    while (live_time < t){
         // NOTE THAT R HAS ALREADY BEEN DIVIDED BY THE CELL AREA AND MULTIPLIED BY FACE LENGHT
         W_0 = W;
         
@@ -369,7 +416,7 @@ void RK4(double dt ,double t, int n, double MachNumber, double AoA, double fluid
         BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R);
         R_0 = R;
         for (int i = 0 ; i<cellNumber*4; i++){
-            W[i] = W_0[i]-(dt/2)*R_0[int(i/4)]; //W(1)
+            W[i] = W_0[i]-(dt/2)*R_0[i]; //W(1)
         }
         
         CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, R);
@@ -377,22 +424,22 @@ void RK4(double dt ,double t, int n, double MachNumber, double AoA, double fluid
         R_1 = R;
 
         for (int i = 0 ; i<cellNumber*4; i++){
-            W[i] = W_0[i]-(dt/2)*R_1[int(i/4)]; // W(2)
+            W[i] = W_0[i]-(dt/2)*R_1[i]; // W(2)
         }
         CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, R);
         BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R);
         R_2 = R;
         for (int i = 0 ; i<cellNumber*4; i++){
-            W[i] = W_0[i]-(dt)*R_2[int(i/4)]; // W(3)
+            W[i] = W_0[i]-(dt)*R_2[i]; // W(3)
         }
 
         CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, R);
         BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R);
         R_3 = R;
         for (int i = 0 ; i<cellNumber*4; i++){
-            W[i] = W_0[i] - (dt/6) * (R_0[int(i/4)] + R_1[int(i/4)] + R_2[int(i/4)] + R_3[int(i/4)]); //W(4) = W(n+1)
+            W[i] = W_0[i] - (dt/6) * (R_0[i] + R_1[i] + R_2[i] + R_3[i]); //W(4) = W(n+1)
         }
-
+        live_time += dt;
 
 
         // Now that we have W(n+1), lets calculate our properties
@@ -404,9 +451,9 @@ void RK4(double dt ,double t, int n, double MachNumber, double AoA, double fluid
             //p[i] = (fluidProperties[2]-1)*(E[i] - 0.5*(rho[i]*(u[i]*u[i] + v[i]*v[i])));
 
         // Print the residuals R
-        for (int i = 0; i < cellNumber; i++) {
-            std::cout << "R[" << i << "] = " << R[i] << std::endl;
-        }
+        //for (int i = 0; i < cellNumber; i++) {
+            //std::cout << "R[" << i << "] = " << R[i] << std::endl;
+        //}
 
         convergenceManager(k, cellNumber, R, globalResidual);
         k += 1;

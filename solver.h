@@ -13,6 +13,7 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
 // Calculate the flux
 void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<int> &faceToCellsLeft, std::vector<int> &faceToCellsRight, std::vector<double> &length,std::vector<double> &cellvolume, std::vector<double> &xNormal, std::vector<double> &yNormal, std::vector<double> &W,std::vector<double>& R);// rk4
 void RK4(double dt,double t,  int n, double MachNumber, double AoA, double fluidProperties[5],std::vector<int>& celltype,std::vector<int>& cellToFaces , int faceNumber, int cellNumber,std::vector<double> &cellvolume, std::vector<int> &faceToCellsLeft, std::vector<int> &faceToCellsRight, std::vector<double> &length, std::vector<double> &xNormal, std::vector<double> &yNormal, std::vector<double> &W,std::vector<double>& R);
+void Euler(double dt,double t,  int n, double MachNumber, double AoA, double fluidProperties[5],std::vector<int>& celltype,std::vector<int>& cellToFaces , int faceNumber, int cellNumber,std::vector<double> &cellvolume, std::vector<int> &faceToCellsLeft, std::vector<int> &faceToCellsRight, std::vector<double> &length, std::vector<double> &xNormal, std::vector<double> &yNormal, std::vector<double> &W,std::vector<double>& R);
 void WriteTecplotFile(const std::string& filename,
                       int NI, int NJ,
                       const std::vector<double>& X,

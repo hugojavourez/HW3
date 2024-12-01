@@ -129,14 +129,14 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
             }
 
             // Determine the index of the face between the physical and the ghost cell
-            faceIndex = cellToFaces[4*physicalCellIndex];
+            faceIndex = cellToFaces[4*physicalCellIndex + 3];
 
             // Calculate the flow velocity vector and the normal vector of the face
             flowVelocity[0] = MachNumber * cos(AoA);
             flowVelocity[1] = MachNumber * sin(AoA);
             velocityMagnitude = sqrt(pow(flowVelocity[0],2) + pow(flowVelocity[1],2));
-            normalVector[0] = xNormal[c];
-            normalVector[1] = yNormal[c];
+            normalVector[0] = xNormal[faceIndex];
+            normalVector[1] = yNormal[faceIndex];
 
             // Determine if the flow is entering or leaving the domain
             dotProduct(flowVelocity, normalVector, dotProductResult);
@@ -213,7 +213,7 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
     double rho, u, v, E, p;
     std::vector<double> F1_Roe(4),F5_Roe(4),F234_Roe(4),A_Roe(4); 
     double F1_Roe_term,F5_Roe_term ;
-    double rho_Roe, u_Roe, v_Roe, H_Roe, c_Roe, V_Roe, q2_Roe, H_left, H_right,Delta_V;
+    double rho_Roe, u_Roe, v_Roe, H_Roe, c_Roe, V_Roe, q2_Roe, H_left, H_right,Delta_V,V_c;
 
     for (int i = 0; i < faceNumber; i++ ){
         // Check if the face is on a side of the domain
@@ -233,12 +233,8 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
         p_left = (fluidProperties[2]-1)*(W[4*id_cell_left + 3] - 0.5*(rho_left*(u_left*u_left + v_left*v_left)));
 
         // Print the values
-        std::cout << "rho_left: " << rho_left << std::endl;
-        std::cout << "u_left: " << u_left << std::endl;
-        std::cout << "v_left: " << v_left << std::endl;
-        std::cout << "E_left: " << E_left << std::endl;
-        std::cout << "p_left: " << p_left << std::endl;
-        std::cin.get();
+
+        //std::cin.get();
 
         //On calcule les proprièté au cellules de droite
         rho_right = W[4*id_cell_right];
@@ -253,6 +249,17 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
         v = 0.5*(v_left + v_right);
         E = 0.5*(E_right + E_left);
         p = 0.5*(p_left + p_right);
+        
+
+        // Print the values
+        //std::cin.get();
+        //std::cout << "rho: " << rho << std::endl;
+        //std::cout << "u: " << u << std::endl;
+        //std::cout << "v: " << v << std::endl;
+        //std::cout << "E: " << E << std::endl;
+        //std::cout << "p: " << p << std::endl;
+
+        V_c = u*xNormal[i] + v*yNormal[i]; //produit scalaire
 
         // ADDING ROE CALCULATION
         // Now we calculate the the properties of Roe
@@ -295,52 +302,33 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
 
         // Maintenant on construit F et G, les flux lié respectivement à x et à y
         std::vector<double> F = {
-            rho*u, 
-            rho *u*u + p,
-            rho*u*v,
+            rho*V_c, 
+            rho *u*V_c + p*xNormal[i],
+            rho*v*V_c + p*yNormal[i],
             u*(rho*(E+p)) };
-        std::vector<double> G = {
-            rho*v, 
-            rho *u*v,
-            rho*v*v + p,
-            v*(rho*(E+p))};
         
 
         // We now substrat the row term, 
         for (int i = 0; i<A_Roe.size();i++){
-            F[i] -= A_Roe[i];
-            G[i] -= A_Roe[i];
+            F[i] -= 0.5*A_Roe[i];
+            
         }
 
 
         // Finally, we construct the fluxes Flux_normal = xNormal[i] *F + yNormal[i] * G;
 
+
         for (double &Element : F){
-            Element *= xNormal[i]; //xNormal[i] *F 
-        }
-
-        for (double &Element : G){
-            Element *= yNormal[i]; // yNormal[i] * G
-        }
-        
-        std::vector<double> Flux_Normal(G.size());
-
-        for (int j = 0; j< Flux_Normal.size();j++){
-            Flux_Normal[j] = F[j] + G[j]; //Flux_normal = xNormal[i] *F + yNormal[i] * G
-        }
-
-
-        for (double &Element : Flux_Normal){
             Element *= length[i]; // on multiplie flux par face lenght 
         }
 
         // now we must calculate the Residu (LC) and add / remove from the face
         int index_res = 0;
-        for (double &Element : Flux_Normal){
+        for (double &Element : F){
             double Left_residual = Element/cellvolume[id_cell_left];
             double Right_residual = Element/cellvolume[id_cell_right];
-            R[4*id_cell_left+index_res] -= Element/cellvolume[id_cell_left];
-            R[4*id_cell_right+index_res] += Element/cellvolume[id_cell_right];
+            R[4*id_cell_left+index_res] -= Left_residual;
+            R[4*id_cell_right+index_res] += Right_residual;
             index_res++;
         };
         
@@ -381,7 +369,7 @@ void RK4(double dt ,double t, int n, double MachNumber, double AoA, double fluid
         BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R);
         R_0 = R;
         for (int i = 0 ; i<cellNumber*4; i++){
-            W[i] = W_0[i]-(dt/2)*R_0[int(i/4)]; // W(1)
+            W[i] = W_0[i]-(dt/2)*R_0[int(i/4)]; //W(1)
         }
         
         CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, R);
@@ -404,7 +392,8 @@ void RK4(double dt ,double t, int n, double MachNumber, double AoA, double fluid
         for (int i = 0 ; i<cellNumber*4; i++){
             W[i] = W_0[i] - (dt/6) * (R_0[int(i/4)] + R_1[int(i/4)] + R_2[int(i/4)] + R_3[int(i/4)]); //W(4) = W(n+1)
         }
-       
+
+
 
         // Now that we have W(n+1), lets calculate our properties
         //for (int i = 0 ; i<cellNumber; i++){

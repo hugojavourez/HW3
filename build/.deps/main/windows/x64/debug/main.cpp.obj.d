@@ -1,14 +1,11 @@
 {
-    files = {
-        "math.cpp"
-    },
     depfiles_cl_json = "{\
     \"Version\": \"1.2\",\
     \"Data\": {\
-        \"Source\": \"c:\\\\users\\\\kamal\\\\onedrive\\\\polytechnique\\\\dess-maitrise\\\\session 3\\\\mec6602 - transonic aerodynamics\\\\homework_3_official\\\\hw3\\\\math.cpp\",\
+        \"Source\": \"c:\\\\users\\\\kamal\\\\onedrive\\\\polytechnique\\\\dess-maitrise\\\\session 3\\\\mec6602 - transonic aerodynamics\\\\homework_3_official\\\\hw3\\\\main.cpp\",\
         \"ProvidedModule\": \"\",\
         \"Includes\": [\
-            \"c:\\\\users\\\\kamal\\\\onedrive\\\\polytechnique\\\\dess-maitrise\\\\session 3\\\\mec6602 - transonic aerodynamics\\\\homework_3_official\\\\hw3\\\\math.h\",\
+            \"c:\\\\users\\\\kamal\\\\onedrive\\\\polytechnique\\\\dess-maitrise\\\\session 3\\\\mec6602 - transonic aerodynamics\\\\homework_3_official\\\\hw3\\\\grid.h\",\
             \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\iostream\",\
             \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\yvals_core.h\",\
             \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\vcruntime.h\",\
@@ -114,26 +111,52 @@
             \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\cctype\",\
             \"c:\\\\program files (x86)\\\\windows kits\\\\10\\\\include\\\\10.0.22621.0\\\\ucrt\\\\ctype.h\",\
             \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\clocale\",\
-            \"c:\\\\program files (x86)\\\\windows kits\\\\10\\\\include\\\\10.0.22621.0\\\\ucrt\\\\locale.h\"\
+            \"c:\\\\program files (x86)\\\\windows kits\\\\10\\\\include\\\\10.0.22621.0\\\\ucrt\\\\locale.h\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\vector\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\__msvc_bit_utils.hpp\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\sstream\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\string\",\
+            \"c:\\\\users\\\\kamal\\\\onedrive\\\\polytechnique\\\\dess-maitrise\\\\session 3\\\\mec6602 - transonic aerodynamics\\\\homework_3_official\\\\hw3\\\\solver.h\",\
+            \"c:\\\\users\\\\kamal\\\\onedrive\\\\polytechnique\\\\dess-maitrise\\\\session 3\\\\mec6602 - transonic aerodynamics\\\\homework_3_official\\\\hw3\\\\solution.h\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\fstream\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\__msvc_filebuf.hpp\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\filesystem\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\algorithm\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\__msvc_minmax.hpp\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\chrono\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\__msvc_chrono.hpp\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\ratio\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\xfilesystem_abi.h\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\iomanip\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\xlocmon\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\xloctime\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\locale\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\xlocbuf\",\
+            \"c:\\\\program files\\\\microsoft visual studio\\\\2022\\\\community\\\\vc\\\\tools\\\\msvc\\\\14.41.34120\\\\include\\\\xlocmes\"\
         ],\
         \"ImportedModules\": [],\
         \"ImportedHeaderUnits\": []\
     }\
 }",
+    files = {
+        "main.cpp"
+    },
     values = {
         [[C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\bin\HostX64\x64\cl.exe]],
         {
             "-nologo",
+            "-Zi",
+            "-FS",
+            [[-Fdbuild\windows\x64\debug\compile.main.pdb]],
             "-W3",
-            "-O2",
+            "-Od",
             "-std:c++17",
             "-MD",
             "/EHsc",
             "-external:W0",
             [[-external:IC:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include]],
             "-external:W0",
-            [[-external:IC:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]],
-            "-DNDEBUG"
+            [[-external:IC:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]]
         }
     }
 }

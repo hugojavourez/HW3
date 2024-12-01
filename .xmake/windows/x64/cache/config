@@ -1,8 +1,8 @@
 {
     recheck = false,
     options = {
-        arch = "x64",
         mode = "debug",
+        arch = "x64",
         plat = "windows"
     },
     mtimes = {

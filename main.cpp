@@ -10,7 +10,7 @@
 /**
  * Parameters of the simulation.
  */
-int n = 9; // Replace with the grid size wanted (9x9, 17x17, etc.)
+int n = 33; // Replace with the grid size wanted (9x9, 17x17, etc.)
 double MachNumber = 0.8; // Mach number of the flow
 double AoA = 0.0; // Angle of attack in degrees
 
@@ -32,8 +32,8 @@ double t = 250;
 int main() {
     
 
-    std::string filename = "C:\\Users\\kamal\\OneDrive\\PolyTechnique\\DESS-MAITRISE\\Session 3\\MEC6602 - Transonic Aerodynamics\\HOMEWORK_3_OFFICIAL\\HW3\\NACA0012grids\\9x9.x"; // Construct the file path
-    
+    //std::string filename = "C:\\Users\\kamal\\OneDrive\\PolyTechnique\\DESS-MAITRISE\\Session 3\\MEC6602 - Transonic Aerodynamics\\HOMEWORK_3_OFFICIAL\\HW3\\NACA0012grids\\9x9.x"; // Construct the file path
+    std::string filename = "NACA0012grids/" + std::to_string(n) + "x" + std::to_string(n)+".x";
     // // Construct the file path
     
     std::vector<double> xCoords, yCoords; // Vectors to store the x and y coordinates of the nodes
@@ -81,11 +81,11 @@ int main() {
 
 
     // Test With Techplot
-    WriteTecplotFile("D:\\output\\output.dat",
-                      n, n,
-                      xCoords,
-                      yCoords,
-                      volume);
+    //WriteTecplotFile("D:\\output\\output.dat",
+                      //n, n,
+                      //xCoords,
+                      //yCoords,
+                      //volume);
     
 
 
@@ -94,10 +94,10 @@ int main() {
 
 
     // Apply the boundary conditions
-    //BoundaryConditions(n, MachNumber,  AoA, fluidProperties, cellType, cellToFaces, xNormal, yNormal, W, R);
+    BoundaryConditions(n, MachNumber,  AoA, fluidProperties, cellType, cellToFaces, xNormal, yNormal, W, R);
 
     // Solve
-    
+    RK4(dt, t,   n,  MachNumber,  AoA, fluidProperties,cellType,cellToFaces ,faceNumber, cellNumber,volume, faceToCellsLeft, faceToCellsRight, length, xNormal, yNormal, W, R);
     // ...
 
     // Post-process

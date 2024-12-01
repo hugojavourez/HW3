@@ -25,7 +25,7 @@ double R = 287.0; // Specific gas constant
 double TInf = 288.15; // Temperature at infinity
 double fluidProperties[5] = {rhoInf, pInf, gamma, R, TInf};
 double dt = 0.5;
-double t = 250;
+double t = 5;
 
 /**
  * Main function.
@@ -61,15 +61,6 @@ int main() {
     std::vector<int> faceType, cellType;
     faceAndCellTypes(n, faceType, cellType);
 
-    // Specify the directory where the file will be created
-    std::string outputDirectory = "../../../../output/";
-    std::filesystem::create_directories(outputDirectory); // Create the directory if it doesn't exist
-
-    // Tests
-    std::cout << "Running tests..." << std::endl;
-    std::string tecplotFilename = outputDirectory + "volumeTest.dat"; // Name of the file to write the tecplot file
-    WriteTecplotFile(tecplotFilename, n, n, xCoords, yCoords, volume);
-
     // Initialize the flow variables
     std::cout << "Initializing..." << std::endl;
     std::vector<double> W;
@@ -84,10 +75,30 @@ int main() {
     Euler(dt, t, n, MachNumber, AoA, fluidProperties, cellType, cellToFaces, faceNumber, cellNumber, volume, faceToCellsLeft, faceToCellsRight, length, xNormal, yNormal, W, R);
 
     // Post-process
-    double cL, cD, cM; // Lift, drag and moment coefficients
     std::cout << "Post-processing..." << std::endl;
+    // Specify the directory where the file will be created
+    std::string outputDirectory = "../../../../output/";
+    std::filesystem::create_directories(outputDirectory); // Create the directory if it doesn't exist
+    // Write the tecplot file for rho, u, v, E and p
+    std::vector<double> rho, u, v, VMag, E, p;
+    calculateProperties(W, fluidProperties, cellNumber, rho, u, v, VMag, E, p);
+    std::string tecplotFilename = outputDirectory + "rho.dat";
+    std::string tecplotFilename2 = outputDirectory + "u.dat";
+    std::string tecplotFilename3 = outputDirectory + "v.dat";
+    std::string tecplotFilename4 = outputDirectory + "VMag.dat";
+    std::string tecplotFilename5 = outputDirectory + "E.dat";
+    std::string tecplotFilename6 = outputDirectory + "p.dat";
+    WriteTecplotFile(tecplotFilename, n, n, xCoords, yCoords, rho);
+    WriteTecplotFile(tecplotFilename2, n, n, xCoords, yCoords, u);
+    WriteTecplotFile(tecplotFilename3, n, n, xCoords, yCoords, v);
+    WriteTecplotFile(tecplotFilename4, n, n, xCoords, yCoords, VMag);
+    WriteTecplotFile(tecplotFilename5, n, n, xCoords, yCoords, E);
+    WriteTecplotFile(tecplotFilename6, n, n, xCoords, yCoords, p);
+    // Calculate lift, drag and moment coefficients
+    double cL, cD, cM; 
     aerodynamicCoefficients(n, MachNumber, AoA, fluidProperties, xCoords, yCoords, faceToCellsRight, faceToNodes, length, xNormal, yNormal, W, cL, cD, cM);
-    std::string pFieldFilename = outputDirectory + "pressureField.txt"; // Name of the file to write the pressure field around the airfoil
+    // Write the pressure field around the airfoil
+    std::string pFieldFilename = outputDirectory + "pressureField.txt";
     pressureField(n, fluidProperties, cellType, xCoords, yCoords, faceToCellsRight, faceToCellsLeft, cellToFaces, faceToNodes, W, pFieldFilename);
 
     return 0;

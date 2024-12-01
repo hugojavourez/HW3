@@ -1,19 +1,19 @@
 {
     eigen = {
+        version = "3.4.0",
+        installdir = [[C:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c]],
+        __requirestr = "eigen",
+        sysincludedirs = {
+            [[C:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include]],
+            [[C:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]]
+        },
         envs = {
             PATH = {
-                [[C:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\bin]],
-                [[C:\Users\kamal\AppData\Local\.xmake\packages\c\cmake\3.30.2\2b80cef30074424181b5e19a46ef30fc\bin]]
+                [[C:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\bin]],
+                [[C:\Users\javou\AppData\Local\.xmake\packages\c\cmake\3.30.2\2b80cef30074424181b5e19a46ef30fc\bin]]
             }
         },
-        sysincludedirs = {
-            [[C:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include]],
-            [[C:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]]
-        },
-        license = "MPL-2.0",
-        installdir = [[C:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c]],
-        version = "3.4.0",
-        __requirestr = "eigen",
-        __enabled = true
+        __enabled = true,
+        license = "MPL-2.0"
     }
 }

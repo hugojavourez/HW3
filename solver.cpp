@@ -26,15 +26,14 @@
  * @param R A vector to store the residuals.
  */
 void Initialization(int n, double MachNumber, double AoA, double fluidProperties[5], int cellNumber, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R) {
-    //std::cout << "Initialization function called" << std::endl;
-
     // Rezise vectors to hold the values
     W.resize(4 * cellNumber);
     R.resize(4 * cellNumber);
 
     // Calculate the flow velocity in each direction
     double flowDirection[2] = {cos(AoA), sin(AoA)};
-    double flowVelocity[2] = {flowDirection[0] * MachNumber, flowDirection[1] * MachNumber};
+    double soundSpeed = sqrt(fluidProperties[2] * fluidProperties[3] * fluidProperties[4]);
+    double flowVelocity[2] = {flowDirection[0] * MachNumber * soundSpeed, flowDirection[1] * MachNumber * soundSpeed};
     double velocityMagnitude = sqrt(pow(flowVelocity[0],2) + pow(flowVelocity[1],2));
 
     // Calculate the total energy
@@ -72,11 +71,7 @@ void Initialization(int n, double MachNumber, double AoA, double fluidProperties
  * 
  * The boundary conditions are applied to the ghost cells only.
  */
-
-
 void BoundaryConditions(const int n, const double MachNumber, const double AoA, double fluidProperties[5], const std::vector<int>& cellType, std::vector<int>& cellToFaces, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R) {
-    
-    
     int physicalCellIndex; // Index of the physical cell touching the boundary
     int faceIndex; // Index of the face between the physical and the ghost cell
     double normalVector[2]; // Normal vector of the face
@@ -87,6 +82,7 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
 
     double flowVelocity[2]; // Flow velocity of the physical cell or the farfield state (in the else part of the loop)
     double velocityMagnitude; // Magnitude of the flow velocity
+    double V2n; // Dot product of the flow velocity and the normal vector
     double totalEnergy; // Total energy of the physical cell or the farfield state (in the else part of the loop)
     double pPhysical; // Physical cell pressure
     double pGhost, rhoGhost, uGhost, vGhost, EGhost; // Ghost cell properties
@@ -109,9 +105,14 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
             flowVelocity[0] = W[4 * physicalCellIndex + 1] / W[4 * physicalCellIndex];
             flowVelocity[1] = W[4 * physicalCellIndex + 2] / W[4 * physicalCellIndex];
             velocityMagnitude = sqrt(pow(flowVelocity[0],2) + pow(flowVelocity[1],2));
+
             // Calculate the flow velocity in the ghost cell
-            uGhost = flowVelocity[0] - 2*velocityMagnitude * xNormal[faceIndex]; 
-            vGhost = flowVelocity[1] - 2*velocityMagnitude * yNormal[faceIndex];
+            normalVector[0] = xNormal[faceIndex];
+            normalVector[1] = yNormal[faceIndex];
+            dotProduct(flowVelocity, normalVector, V2n);
+            uGhost = flowVelocity[0] - 2 * V2n * xNormal[faceIndex]; 
+            vGhost = flowVelocity[1] - 2 * V2n * yNormal[faceIndex];
+
             // Calculate the pressure and the total energy in the physical cell
             pGhost = (fluidProperties[2] - 1) * ((W[4 * physicalCellIndex + 3] / W[4 * physicalCellIndex]) - 0.5 * W[4 * physicalCellIndex] * pow(velocityMagnitude,2));
             EGhost = pGhost / ((fluidProperties[2] - 1)) + 0.5 * W[4 * physicalCellIndex] * (pow(uGhost,2) + pow(vGhost,2));
@@ -140,8 +141,9 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
             faceIndex = cellToFaces[4*physicalCellIndex + 3];
 
             // Calculate the flow velocity vector and the normal vector of the face
-            flowVelocity[0] = MachNumber * cos(AoA);
-            flowVelocity[1] = MachNumber * sin(AoA);
+            soundSpeed = sqrt(fluidProperties[2] * fluidProperties[3] * fluidProperties[4]);
+            flowVelocity[0] = soundSpeed * MachNumber * cos(AoA);
+            flowVelocity[1] = soundSpeed * MachNumber * sin(AoA);
             velocityMagnitude = sqrt(pow(flowVelocity[0],2) + pow(flowVelocity[1],2));
             normalVector[0] = xNormal[faceIndex];
             normalVector[1] = yNormal[faceIndex];
@@ -153,7 +155,6 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
             if (MachNumber < 1.0) {
                 if (dotProductResult < 0.0) {
                     // Subsonic inflow
-                    soundSpeed = sqrt(fluidProperties[2] * fluidProperties[3] * fluidProperties[4]);
                     pPhysical = (fluidProperties[2] - 1) * ((W[4 * physicalCellIndex + 3] / W[4 * physicalCellIndex]) - 0.5 * W[4 * physicalCellIndex] * pow(sqrt(pow(W[4 * physicalCellIndex + 1],2) + pow(W[4 * physicalCellIndex + 2],2)) / W[4 * physicalCellIndex],2));
                     pGhost = 0.5 * (fluidProperties[1] + pPhysical - W[4 * physicalCellIndex] *soundSpeed * ((flowVelocity[0] - (W[4 * physicalCellIndex + 1] / W[4 * physicalCellIndex])) * xNormal[faceIndex] + (flowVelocity[1] - (W[4 * physicalCellIndex + 2] / W[4 * physicalCellIndex])) * yNormal[faceIndex]));
                     rhoGhost = W[4 * physicalCellIndex] + (pGhost - pPhysical) / pow(soundSpeed,2);
@@ -162,7 +163,6 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
                     EGhost = pGhost / ((fluidProperties[2] - 1)) + 0.5 * rhoGhost * (pow(uGhost,2) + pow(vGhost,2));
                 } else {
                     // Subsonic outflow
-                    soundSpeed = sqrt(fluidProperties[2] * fluidProperties[3] * fluidProperties[4]);
                     pPhysical = (fluidProperties[2] - 1) * ((W[4 * physicalCellIndex + 3] / W[4 * physicalCellIndex]) - 0.5 * W[4 * physicalCellIndex] * pow(sqrt(pow(W[4 * physicalCellIndex + 1],2) + pow(W[4 * physicalCellIndex + 2],2)) / W[4 * physicalCellIndex],2));
                     pGhost = fluidProperties[1];
                     rhoGhost = W[4 * physicalCellIndex] + (pGhost - pPhysical) / pow(soundSpeed,2);
@@ -374,7 +374,7 @@ void Euler(double dt ,double t, int n, double MachNumber, double AoA, double flu
     //std::vector<double> v(cellNumber);
     //std::vector<double> E(cellNumber);
     //std::vector<double> p(cellNumber);
-    
+
     while (live_time < t){
         // NOTE THAT R HAS ALREADY BEEN DIVIDED BY THE CELL AREA AND MULTIPLIED BY FACE LENGHT
         W_0 = W;
@@ -387,6 +387,12 @@ void Euler(double dt ,double t, int n, double MachNumber, double AoA, double flu
         }
         live_time += dt;
 
+        // Print all the values of W
+        for (int i = 0; i < 4 * cellNumber; i++) {
+            std::cout << "W[" << i << "] = " << W[i] << std::endl;
+        }
+        // Pause the program
+        std::cin.get();
 
         // Now that we have W(n+1), lets calculate our properties
         //for (int i = 0 ; i<cellNumber; i++){

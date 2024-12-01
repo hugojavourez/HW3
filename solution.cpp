@@ -7,6 +7,40 @@
 #include <sstream>
 
 /**
+ * Calculates rho, u, v, E and p from the flow variables for all the domain.
+ * 
+ * @param W A vector containing the flow variables.
+ * @param fluidProperties An array containing the fluid properties: [rhoInf, pInf, gamma, R, TInf].
+ * @param cellNumber The total number of cells.
+ * @param rho A vector to store the density.
+ * @param u A vector to store the x-component of the velocity.
+ * @param v A vector to store the y-component of the velocity.
+ * @param VMag A vector to store the magnitude of the velocity.
+ * @param E A vector to store the total energy.
+ * @param p A vector to store the pressure.
+ */
+void calculateProperties(const std::vector<double>& W, const double fluidProperties[5], const int cellNumber, std::vector<double>& rho, std::vector<double>& u, std::vector<double>& v, std::vector<double>& VMag, std::vector<double>& E, std::vector<double>& p) {
+    // Resize the vectors
+    rho.resize(cellNumber);
+    u.resize(cellNumber);
+    v.resize(cellNumber);
+    VMag.resize(cellNumber);
+    E.resize(cellNumber);
+    p.resize(cellNumber);
+    
+    // Loop over the cells
+    for (int c = 0; c < cellNumber; c++) {
+        // Calculate the fluid properties
+        rho[c] = W[4 * c];
+        u[c] = W[4 * c + 1] / W[4 * c];
+        v[c] = W[4 * c + 2] / W[4 * c];
+        VMag[c] = sqrt(pow(u[c],2) + pow(v[c],2));
+        E[c] = W[4 * c + 3] / W[4 * c];
+        p[c] = (fluidProperties[2] - 1) * (E[c] - 0.5 * rho[c] * (pow(u[c],2) + pow(v[c],2)));
+    }
+}
+
+/**
  * Calculates the aerodynamic coefficients of the airfoil.
  * 
  * @param n The grid size (nxn).

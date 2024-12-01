@@ -1,11 +1,11 @@
 {
-    recheck = false,
-    options = {
-        mode = "debug",
-        arch = "x64",
-        plat = "windows"
-    },
     mtimes = {
         ["xmake.lua"] = 1732928266
-    }
+    },
+    options = {
+        plat = "windows",
+        mode = "debug",
+        arch = "x64"
+    },
+    recheck = false
 }

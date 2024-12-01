@@ -241,11 +241,11 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
         // ADDING ROE CALCULATION
         // Now we calculate the the properties of Roe
         rho_Roe = std::sqrt(rho_left*rho_right);
-        u_Roe = (u_left*std::sqrt(rho_left) + u_right*std::sqrt(rho_right)) / (std::sqrt(rho_left)* std::sqrt(rho_right));
-        v_Roe = (v_left*std::sqrt(rho_left) + u_right*std::sqrt(rho_right)) / (std::sqrt(rho_left)* std::sqrt(rho_right));
+        u_Roe = (u_left*std::sqrt(rho_left) + u_right*std::sqrt(rho_right)) / (std::sqrt(rho_left) + std::sqrt(rho_right));
+        v_Roe = (v_left*std::sqrt(rho_left) + u_right*std::sqrt(rho_right)) / (std::sqrt(rho_left) + std::sqrt(rho_right));
         H_left = (rho_left*E_left + p_left)/rho_left;
         H_right = (rho_right*E_right + p_right)/rho_right;
-        H_Roe = (H_left*std::sqrt(rho_left) + H_right*std::sqrt(rho_right)) / (std::sqrt(rho_left)* std::sqrt(rho_right));
+        H_Roe = (H_left*std::sqrt(rho_left) + H_right*std::sqrt(rho_right)) / (std::sqrt(rho_left) + std::sqrt(rho_right));
         q2_Roe = u_Roe*u_Roe + v_Roe*v_Roe;
         V_Roe = u_Roe * xNormal[i] + v_Roe * yNormal[i];
         c_Roe = std::sqrt((fluidProperties[2]-1)*(H_Roe-q2_Roe/2));
@@ -357,7 +357,7 @@ void RK4(double dt,double t,  int n, double MachNumber, double AoA, double fluid
         R_0 = R;
         for (int i = 0 ; i<cellNumber*4; i++){
             W[i] = W_0[i]-(dt/2)*R_0[i]; // W(1)
-        {
+        }
         
         CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, R); // LC(1)
         BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R);
@@ -391,11 +391,11 @@ void RK4(double dt,double t,  int n, double MachNumber, double AoA, double fluid
         //
         live_time += dt;
         }
-    }
-  }
+}
+  
 
     
-}
+
 
 void WriteTecplotFile(const std::string & filename,
                       int NI, int NJ,

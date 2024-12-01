@@ -1,5 +1,6 @@
 #include "math.h"
 #include "manager.h"
+
 #include <fstream>
 #include <cmath>
 #include <cstdlib>
@@ -42,10 +43,10 @@ void Initialization(int n, double MachNumber, double AoA, double fluidProperties
     // Loop over the cells
     for (int c = 0; c < cellNumber; c++) {
         // Calculate the fluid properties vector W
-        W[3 * c] = fluidProperties[0];
-        W[3 * c + 1] = fluidProperties[0] * flowVelocity[0];
-        W[3 * c + 2] = fluidProperties[0] * flowVelocity[1];
-        W[3 * c + 3] = fluidProperties[0] * totalEnergy;
+        W[4 * c] = fluidProperties[0];
+        W[4 * c + 1] = fluidProperties[0] * flowVelocity[0];
+        W[4 * c + 2] = fluidProperties[0] * flowVelocity[1];
+        W[4 * c + 3] = fluidProperties[0] * totalEnergy;
 
         // Calculate the residual vector R (initially set to zero)
         R[c] = 0;
@@ -69,6 +70,8 @@ void Initialization(int n, double MachNumber, double AoA, double fluidProperties
  * The boundary conditions are applied to the ghost cells only.
  */
 void BoundaryConditions(const int n, const double MachNumber, const double AoA, double fluidProperties[5], const std::vector<int>& cellType, std::vector<int>& cellToFaces, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R) {
+    std::cout << "Boundary conditions function called" << std::endl;
+    
     int physicalCellIndex; // Index of the physical cell touching the boundary
     int faceIndex; // Index of the face between the physical and the ghost cell
     double normalVector[2]; // Normal vector of the face
@@ -82,7 +85,7 @@ void BoundaryConditions(const int n, const double MachNumber, const double AoA, 
     double totalEnergy; // Total energy of the physical cell or the farfield state (in the else part of the loop)
     double pPhysical; // Physical cell pressure
     double pGhost, rhoGhost, uGhost, vGhost, EGhost; // Ghost cell properties
-    std::cout << "boundary conditions function called" << std::endl;
+
     // Loop over the cells
     for (int c = 0; c < cellType.size(); c++) {
         // Check if the cell is a boundary cell (-1 if it is a wall, 1 if it is a farfield)
@@ -213,6 +216,11 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
     double rho_Roe, u_Roe, v_Roe, H_Roe, c_Roe, V_Roe, q2_Roe, H_left, H_right,Delta_V;
 
     for (int i = 0; i < faceNumber; i++ ){
+        // Check if the face is on a side of the domain
+        if (faceToCellsRight[i] == -1 || faceToCellsLeft[i] == -1){
+            continue;
+        }
+
         // Get les cellules concernés
         int id_cell_left = faceToCellsLeft[i];
         int id_cell_right = faceToCellsRight[i];
@@ -223,6 +231,14 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
         v_left = W[4*id_cell_left + 2]/W[4*id_cell_left];
         E_left = W[4*id_cell_left + 3]/W[4*id_cell_left];
         p_left = (fluidProperties[2]-1)*(W[4*id_cell_left + 3] - 0.5*(rho_left*(u_left*u_left + v_left*v_left)));
+
+        // Print the values
+        std::cout << "rho_left: " << rho_left << std::endl;
+        std::cout << "u_left: " << u_left << std::endl;
+        std::cout << "v_left: " << v_left << std::endl;
+        std::cout << "E_left: " << E_left << std::endl;
+        std::cout << "p_left: " << p_left << std::endl;
+        std::cin.get();
 
         //On calcule les proprièté au cellules de droite
         rho_right = W[4*id_cell_right];
@@ -315,8 +331,7 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
 
 
         for (double &Element : Flux_Normal){
-            Element *= length[i]; // on multiplie flux par face lenght
-            
+            Element *= length[i]; // on multiplie flux par face lenght 
         }
 
         // now we must calculate the Residu (LC) and add / remove from the face
@@ -334,50 +349,60 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
     }   
 } 
 
-void RK4(double dt,double t,  int n, double MachNumber, double AoA, double fluidProperties[5],std::vector<int>& celltype,std::vector<int>& cellToFaces , int faceNumber, int cellNumber,std::vector<double> &cellvolume, std::vector<int> &faceToCellsLeft, std::vector<int> &faceToCellsRight, std::vector<double> &length, std::vector<double> &xNormal, std::vector<double> &yNormal, std::vector<double> &W, std::vector<double>& R){
-    
+void RK4(double dt ,double t, int n, double MachNumber, double AoA, double fluidProperties[5], std::vector<int>& celltype, std::vector<int>& cellToFaces, int faceNumber, int cellNumber, std::vector<double>& cellvolume, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& length, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R){
     double live_time = 0;
     std::vector<double> W_0;
     std::vector<double> R_0;
     std::vector<double> R_1;
     std::vector<double> R_2;
     std::vector<double> R_3;
+
+    int k = 0; // Iteration number
+    double globalResidual = 1; // Residual used for the global convergence
+
+    // Resizing the vectors
+    // W_0.resize(4*cellNumber,0.0);
+    // R_0.resize(cellNumber,0.0);
+    // R_1.resize(cellNumber,0.0);
+    // R_2.resize(cellNumber,0.0);
+    // R_3.resize(cellNumber,0.0);
+
     //std::vector<double> rho(cellNumber);
     //std::vector<double> u(cellNumber);
     //std::vector<double> v(cellNumber);
     //std::vector<double> E(cellNumber);
     //std::vector<double> p(cellNumber);
     
-    while (live_time < t){
-        // NOTE THAT LC HAS ALREADY BEEN DIVIDED BY THE CELL AREA AND MULTIPLIED BY FACE LENGHT
+    while (globalResidual > 0.00001 || k > 10){
+        // NOTE THAT R HAS ALREADY BEEN DIVIDED BY THE CELL AREA AND MULTIPLIED BY FACE LENGHT
         W_0 = W;
         
         CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, R);
-        BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R); // LC(0)
+        BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R);
         R_0 = R;
         for (int i = 0 ; i<cellNumber*4; i++){
-            W[i] = W_0[i]-(dt/2)*R_0[i]; // W(1)
+            W[i] = W_0[i]-(dt/2)*R_0[int(i/4)]; // W(1)
         }
         
-        CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, R); // LC(1)
+        CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, R);
         BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R);
         R_1 = R;
 
         for (int i = 0 ; i<cellNumber*4; i++){
-            W[i] = W_0[i]-(dt/2)*R_1[i]; // W(2)
+            W[i] = W_0[i]-(dt/2)*R_1[int(i/4)]; // W(2)
         }
         CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, R);
-        BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R); // LC(2)
+        BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R);
         R_2 = R;
         for (int i = 0 ; i<cellNumber*4; i++){
-            W[i] = W_0[i]-(dt)*R_2[i]; // W(3)
-         }
+            W[i] = W_0[i]-(dt)*R_2[int(i/4)]; // W(3)
+        }
 
         CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, R);
-        BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R); // LC(3)
+        BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R);
         R_3 = R;
         for (int i = 0 ; i<cellNumber*4; i++){
-            W[i] = W_0[i] - (dt/6) * (R_0[i] + R_1[i] + R_2[i] + R_3[i]); //W(4) = W(n+1)
+            W[i] = W_0[i] - (dt/6) * (R_0[int(i/4)] + R_1[int(i/4)] + R_2[int(i/4)] + R_3[int(i/4)]); //W(4) = W(n+1)
         }
        
 
@@ -388,21 +413,33 @@ void RK4(double dt,double t,  int n, double MachNumber, double AoA, double fluid
             //v[i] = W[4*i + 2] / W[4*i];
             //E[i] = W[4*i + 3] / W[4*i];
             //p[i] = (fluidProperties[2]-1)*(E[i] - 0.5*(rho[i]*(u[i]*u[i] + v[i]*v[i])));
-        //
-        live_time += dt;
+
+        // Print the residuals R
+        for (int i = 0; i < cellNumber; i++) {
+            std::cout << "R[" << i << "] = " << R[i] << std::endl;
         }
+
+        convergenceManager(k, cellNumber, R, globalResidual);
+        k += 1;
+    }
+    std::cout << "End of the simulation" << std::endl;
 }
-  
 
-    
-
-
+/**
+ * Writes the Tecplot file for the variable.
+ * 
+ * @param filename The name of the file to write.
+ * @param NI
+ * @param NJ
+ * @param X The x-coordinates of the grid.
+ * @param Y The y-coordinates of the grid.
+ * @param variable The variable to write.
+ */
 void WriteTecplotFile(const std::string & filename,
                       int NI, int NJ,
                       const std::vector<double>& X,
                       const std::vector<double>& Y,
-                      const std::vector<double>& Volume){
-
+                      const std::vector<double>& variable){
     
     int NCI = NI - 1;
     int NCJ = NJ - 1;
@@ -411,11 +448,11 @@ void WriteTecplotFile(const std::string & filename,
 
     // Write header
     outfile << "TITLE = \"CFD Simulation Results\"\n";
-    outfile << "VARIABLES = \"X\", \"Y\", \"Volume\" \n";
+    outfile << "VARIABLES = \"X\", \"Y\", \"Variable\" \n";
     outfile << "ZONE T=\"Flow Field\", I=" << NI << ", J=" << NJ << ", DATAPACKING=BLOCK\n";
     outfile << "VARLOCATION=([3-7]=CELLCENTERED)\n";
 
-    
+    // Crite the coordinates
     for (int idx = 0; idx < NI * NJ; ++idx) {
         outfile << X[idx] << " ";
     }
@@ -426,16 +463,14 @@ void WriteTecplotFile(const std::string & filename,
     }
     outfile << "\n";
 
+    // Write the cell variable
     auto writeCellVariable = [&](const std::vector<double>& var) {
         for (int idx = 0; idx < NCI * NCJ; ++idx) {
             outfile << var[idx] << " ";
         }
         outfile << "\n";
     };
-
-    writeCellVariable(Volume);
+    writeCellVariable(variable);
 
     outfile.close();
-
-
 }

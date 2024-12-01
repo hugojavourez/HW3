@@ -1,6 +1,7 @@
 #include "grid.h"
 #include "solver.h"
 #include "solution.h"
+
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -30,16 +31,13 @@ double t = 250;
  * Main function.
  */
 int main() {
-    
+    std::cout << "Running simulation..." << std::endl;
 
-    //std::string filename = "C:\\Users\\kamal\\OneDrive\\PolyTechnique\\DESS-MAITRISE\\Session 3\\MEC6602 - Transonic Aerodynamics\\HOMEWORK_3_OFFICIAL\\HW3\\NACA0012grids\\9x9.x"; // Construct the file path
-    std::string filename = "NACA0012grids/" + std::to_string(n) + "x" + std::to_string(n)+".x";
-    // // Construct the file path
+    // Construct the file path
+    std::string filename = "../../../../NACA0012grids/" + std::to_string(n) + "x" + std::to_string(n)+".x";
     
-    std::vector<double> xCoords, yCoords; // Vectors to store the x and y coordinates of the nodes
-
     // Read the coordinates from the file
-    
+    std::vector<double> xCoords, yCoords; // Vectors to store the x and y coordinates of the nodes 
     readCoordinates(filename, n, xCoords, yCoords);
 
     // Determine the connectivity between faces and cells
@@ -63,48 +61,34 @@ int main() {
     std::vector<int> faceType, cellType;
     faceAndCellTypes(n, faceType, cellType);
 
-    //// Specify the directory where the file will be created
-    //std::string outputDirectory = "../../../../output/";
-    //std::filesystem::create_directories(outputDirectory); // Create the directory if it doesn't exist
-//
-    //// Tests
-    //std::cout << "Running tests..." << std::endl;
-    //std::string tecplotFilename = outputDirectory + "volumeTest.dat"; // Name of the file to write the tecplot file
-    //volumeTest(n, cellNumber, xCoords, yCoords, cellToFaces, faceToNodes, volume, tecplotFilename);
+    // Specify the directory where the file will be created
+    std::string outputDirectory = "../../../../output/";
+    std::filesystem::create_directories(outputDirectory); // Create the directory if it doesn't exist
 
+    // Tests
+    std::cout << "Running tests..." << std::endl;
+    std::string tecplotFilename = outputDirectory + "volumeTest.dat"; // Name of the file to write the tecplot file
+    WriteTecplotFile(tecplotFilename, n, n, xCoords, yCoords, volume);
 
     // Initialize the flow variables
+    std::cout << "Initializing..." << std::endl;
     std::vector<double> W;
     std::vector<double> R;
-    Initialization(n, MachNumber,  AoA,  fluidProperties,  faceNumber, faceToCellsLeft, faceToCellsRight, xNormal, yNormal, W, R);
-
-
-
-    // Test With Techplot
-    //WriteTecplotFile("D:\\output\\output.dat",
-                      //n, n,
-                      //xCoords,
-                      //yCoords,
-                      //volume);
-    
-
-
-
-
-
+    Initialization(n, MachNumber, AoA, fluidProperties, faceNumber, faceToCellsLeft, faceToCellsRight, xNormal, yNormal, W, R);
 
     // Apply the boundary conditions
-    BoundaryConditions(n, MachNumber,  AoA, fluidProperties, cellType, cellToFaces, xNormal, yNormal, W, R);
+    BoundaryConditions(n, MachNumber, AoA, fluidProperties, cellType, cellToFaces, xNormal, yNormal, W, R);
 
     // Solve
-    RK4(dt, t,   n,  MachNumber,  AoA, fluidProperties,cellType,cellToFaces ,faceNumber, cellNumber,volume, faceToCellsLeft, faceToCellsRight, length, xNormal, yNormal, W, R);
-    // ...
+    std::cout << "Solving..." << std::endl;
+    RK4(dt, t, n, MachNumber, AoA, fluidProperties, cellType, cellToFaces, faceNumber, cellNumber, volume, faceToCellsLeft, faceToCellsRight, length, xNormal, yNormal, W, R);
 
     // Post-process
-    //double cL, cD, cM; // Lift, drag and moment coefficients
-    //aerodynamicCoefficients(n, MachNumber, AoA, fluidProperties, xCoords, yCoords, faceToCellsRight, faceToNodes, length, xNormal, yNormal, W, cL, cD, cM);
-    //std::string pFieldFilename = "pressureField.txt"; // Name of the file to write the pressure field around the airfoil
-    //pressureField(n, fluidProperties, cellType, xCoords, yCoords, faceToCellsRight, faceToCellsLeft, cellToFaces, faceToNodes, W, pFieldFilename);
+    double cL, cD, cM; // Lift, drag and moment coefficients
+    std::cout << "Post-processing..." << std::endl;
+    aerodynamicCoefficients(n, MachNumber, AoA, fluidProperties, xCoords, yCoords, faceToCellsRight, faceToNodes, length, xNormal, yNormal, W, cL, cD, cM);
+    std::string pFieldFilename = outputDirectory + "pressureField.txt"; // Name of the file to write the pressure field around the airfoil
+    pressureField(n, fluidProperties, cellType, xCoords, yCoords, faceToCellsRight, faceToCellsLeft, cellToFaces, faceToNodes, W, pFieldFilename);
 
     return 0;
 }

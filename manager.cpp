@@ -48,6 +48,7 @@ void convergenceManager(const int iterationNumber, const int cellNumber, const s
     for (int c = 0; c < cellNumber; c++) {
         globalResidual += R[c]*R[c];
     }
+    std::cout << "Global residual: " << globalResidual << std::endl;
     globalResidual = sqrt((1 / cellNumber) * globalResidual);
 
     // Print the global residual

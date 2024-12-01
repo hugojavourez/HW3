@@ -354,33 +354,59 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
 } 
 
 void Euler(double dt ,double t, int n, double MachNumber, double AoA, double fluidProperties[5], std::vector<int>& celltype, std::vector<int>& cellToFaces, int faceNumber, int cellNumber, std::vector<double>& cellvolume, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& length, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R){
-        double live_time = 0;
+    double live_time = 0;
+    std::vector<double> W_0;
+    std::vector<double> R_0;
+
+
+    int k = 0; // Iteration number
+    double globalResidual = 1; // Residual used for the global convergence
+
+    // Resizing the vectors
+    // W_0.resize(4*cellNumber,0.0);
+    // R_0.resize(cellNumber,0.0);
+    // R_1.resize(cellNumber,0.0);
+    // R_2.resize(cellNumber,0.0);
+    // R_3.resize(cellNumber,0.0);
+
+    //std::vector<double> rho(cellNumber);
+    //std::vector<double> u(cellNumber);
+    //std::vector<double> v(cellNumber);
+    //std::vector<double> E(cellNumber);
+    //std::vector<double> p(cellNumber);
+    
+    while (live_time < t){
+        // NOTE THAT R HAS ALREADY BEEN DIVIDED BY THE CELL AREA AND MULTIPLIED BY FACE LENGHT
+        W_0 = W;
         
-        while (live_time < t) {
-        // Save current state
-        std::vector<double> W_0 = W;
-
-        // Calculate residuals at current state
-        CalculateResidual(fluidProperties, faceNumber, faceToCellsLeft, faceToCellsRight,
-                          length, cellvolume, xNormal, yNormal, W, R);
-
-        // Apply boundary conditions
-        BoundaryConditions(n, MachNumber, AoA, fluidProperties, celltype, cellToFaces, xNormal, yNormal, W, R);
-
-        // Update the solution using Euler method
-        for (int i = 0; i < cellNumber * 4; ++i) {
-            W[i] = W_0[i] - dt * R[i];
+        CalculateResidual(fluidProperties,faceNumber, faceToCellsLeft, faceToCellsRight, length, cellvolume, xNormal, yNormal, W, R);
+        BoundaryConditions(n, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R);
+        R_0 = R;
+        for (int i = 0 ; i<cellNumber*4; i++){
+            W[i] = W_0[i]-(dt)*R_0[i]; //W(1)
         }
-
-        // Advance time
         live_time += dt;
 
+
+        // Now that we have W(n+1), lets calculate our properties
+        //for (int i = 0 ; i<cellNumber; i++){
+            //rho[i] = W[4*i];
+            //u[i] = W[4*i + 1] / W[4*i];
+            //v[i] = W[4*i + 2] / W[4*i];
+            //E[i] = W[4*i + 3] / W[4*i];
+            //p[i] = (fluidProperties[2]-1)*(E[i] - 0.5*(rho[i]*(u[i]*u[i] + v[i]*v[i])));
+
         // Print the residuals R
-        for (int i = 0; i < cellNumber; i++) {
-            std::cout << "R[" << i << "] = " << R[i] << std::endl;
-        }
-        }
+        //for (int i = 0; i < cellNumber; i++) {
+            //std::cout << "R[" << i << "] = " << R[i] << std::endl;
+        //}
+
+        convergenceManager(k, cellNumber, R, globalResidual);
+        k += 1;
     }
+    std::cout << "End of the simulation" << std::endl;
+}
+
 
 
 

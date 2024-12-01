@@ -2,6 +2,24 @@
     files = {
         "manager.cpp"
     },
+    values = {
+        [[C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\bin\HostX64\x64\cl.exe]],
+        {
+            "-nologo",
+            "-Zi",
+            "-FS",
+            [[-Fdbuild\windows\x64\debug\compile.main.pdb]],
+            "-W3",
+            "-Od",
+            "-std:c++17",
+            "-MD",
+            "/EHsc",
+            "-external:W0",
+            [[-external:IC:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include]],
+            "-external:W0",
+            [[-external:IC:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]]
+        }
+    },
     depfiles_cl_json = "{\
     \"Version\": \"1.2\",\
     \"Data\": {\
@@ -123,23 +141,5 @@
         \"ImportedModules\": [],\
         \"ImportedHeaderUnits\": []\
     }\
-}",
-    values = {
-        [[C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\bin\HostX64\x64\cl.exe]],
-        {
-            "-nologo",
-            "-Zi",
-            "-FS",
-            [[-Fdbuild\windows\x64\debug\compile.main.pdb]],
-            "-W3",
-            "-Od",
-            "-std:c++17",
-            "-MD",
-            "/EHsc",
-            "-external:W0",
-            [[-external:IC:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include]],
-            "-external:W0",
-            [[-external:IC:\Users\kamal\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]]
-        }
-    }
+}"
 }

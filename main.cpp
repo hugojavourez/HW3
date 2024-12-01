@@ -81,7 +81,7 @@ int main() {
 
     // Solve
     std::cout << "Solving..." << std::endl;
-    RK4(dt, t, n, MachNumber, AoA, fluidProperties, cellType, cellToFaces, faceNumber, cellNumber, volume, faceToCellsLeft, faceToCellsRight, length, xNormal, yNormal, W, R);
+    Euler(dt, t, n, MachNumber, AoA, fluidProperties, cellType, cellToFaces, faceNumber, cellNumber, volume, faceToCellsLeft, faceToCellsRight, length, xNormal, yNormal, W, R);
 
     // Post-process
     double cL, cD, cM; // Lift, drag and moment coefficients

@@ -1,19 +1,6 @@
 {
-    values = {
-        [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64\cl.exe]],
-        {
-            "-nologo",
-            "-W3",
-            "-O2",
-            "-std:c++17",
-            "-MD",
-            "/EHsc",
-            "-external:W0",
-            [[-external:IC:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include]],
-            "-external:W0",
-            [[-external:IC:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]],
-            "-DNDEBUG"
-        }
+    files = {
+        "grid.cpp"
     },
     depfiles_cl_json = "{\
     \"Version\": \"1.2\",\
@@ -352,7 +339,20 @@
         \"ImportedHeaderUnits\": []\
     }\
 }",
-    files = {
-        "grid.cpp"
+    values = {
+        [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64\cl.exe]],
+        {
+            "-nologo",
+            "-W3",
+            "-O2",
+            "-std:c++17",
+            "-MD",
+            "/EHsc",
+            "-external:W0",
+            [[-external:IC:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include]],
+            "-external:W0",
+            [[-external:IC:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]],
+            "-DNDEBUG"
+        }
     }
 }

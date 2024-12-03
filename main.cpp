@@ -11,8 +11,8 @@
 /**
  * Parameters of the simulation.
  */
-int n = 33; // Replace with the grid size wanted (9x9, 17x17, etc.)
-double MachNumber = 0.8; // Mach number of the flow
+int n = 9; // Replace with the grid size wanted (9x9, 17x17, etc.)
+double MachNumber = 2; // Mach number of the flow
 double AoA = 0.0; // Angle of attack in degrees
 
 /**
@@ -24,8 +24,8 @@ double gamma = 1.4; // Heat capacity ratio
 double R = 287.0; // Specific gas constant
 double TInf = 288.15; // Temperature at infinity
 double fluidProperties[5] = {rhoInf, pInf, gamma, R, TInf};
-double dt = 0.5;
-double t = 5;
+double dt = 1;
+double t = 250;
 
 /**
  * Main function.
@@ -81,7 +81,7 @@ int main() {
 
     // Solve
     std::cout << "Solving..." << std::endl;
-    Euler(dt, t, n1, n2, MachNumber, AoA, fluidProperties, cellType, cellToFaces, faceNumber, cellNumber, volume, faceToCellsLeft, faceToCellsRight, length, xNormal, yNormal, W, R);
+    Euler(dt, t, n1, n2, MachNumber, AoA, fluidProperties, cellType, cellToFaces, faceNumber, cellNumber, volume, faceToCellsLeft, faceToCellsRight, length, xCoords, yCoords, xNormal, yNormal, W, R);
 
     // Post-process
     std::cout << "Post-processing..." << std::endl;

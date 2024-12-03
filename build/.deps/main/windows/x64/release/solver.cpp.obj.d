@@ -1,4 +1,23 @@
 {
+    files = {
+        "solver.cpp"
+    },
+    values = {
+        [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64\cl.exe]],
+        {
+            "-nologo",
+            "-W3",
+            "-O2",
+            "-std:c++17",
+            "-MD",
+            "/EHsc",
+            "-external:W0",
+            [[-external:IC:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include]],
+            "-external:W0",
+            [[-external:IC:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]],
+            "-DNDEBUG"
+        }
+    },
     depfiles_cl_json = "{\
     \"Version\": \"1.2\",\
     \"Data\": {\
@@ -117,30 +136,12 @@
             \"c:\\\\program files (x86)\\\\microsoft visual studio\\\\2022\\\\buildtools\\\\vc\\\\tools\\\\msvc\\\\14.42.34433\\\\include\\\\__msvc_bit_utils.hpp\",\
             \"c:\\\\program files (x86)\\\\microsoft visual studio\\\\2022\\\\buildtools\\\\vc\\\\tools\\\\msvc\\\\14.42.34433\\\\include\\\\sstream\",\
             \"c:\\\\program files (x86)\\\\microsoft visual studio\\\\2022\\\\buildtools\\\\vc\\\\tools\\\\msvc\\\\14.42.34433\\\\include\\\\string\",\
+            \"c:\\\\users\\\\javou\\\\desktop\\\\hw3\\\\solution.h\",\
             \"c:\\\\program files (x86)\\\\microsoft visual studio\\\\2022\\\\buildtools\\\\vc\\\\tools\\\\msvc\\\\14.42.34433\\\\include\\\\fstream\",\
             \"c:\\\\program files (x86)\\\\microsoft visual studio\\\\2022\\\\buildtools\\\\vc\\\\tools\\\\msvc\\\\14.42.34433\\\\include\\\\__msvc_filebuf.hpp\"\
         ],\
         \"ImportedModules\": [],\
         \"ImportedHeaderUnits\": []\
     }\
-}",
-    values = {
-        [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64\cl.exe]],
-        {
-            "-nologo",
-            "-W3",
-            "-O2",
-            "-std:c++17",
-            "-MD",
-            "/EHsc",
-            "-external:W0",
-            [[-external:IC:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include]],
-            "-external:W0",
-            [[-external:IC:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]],
-            "-DNDEBUG"
-        }
-    },
-    files = {
-        "solver.cpp"
-    }
+}"
 }

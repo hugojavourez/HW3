@@ -178,9 +178,6 @@ void WriteTecplotFile(const std::string& filename, int NI, int NJ, const std::ve
     int NCI = NI - 1;
     int NCJ = NJ - 1;
 
-    std::cout << "NI: " << NI << std::endl;
-    std::cout << "NJ: " << NJ << std::endl;
-
     std::ofstream outfile(filename);
 
     // Write header

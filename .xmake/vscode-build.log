@@ -1,1 +1,4 @@
-[100%]: build ok, spent 0.547s
+[ 80%]: compiling.release solver.cpp
+[ 90%]: linking.release main.exe
+error: LINK : fatal error LNK1104: impossible d'ouvrir le fichier 'build\windows\x64\release\main.exe'
+

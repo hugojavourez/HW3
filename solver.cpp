@@ -1,5 +1,6 @@
 #include "math.h"
 #include "manager.h"
+#include "solution.h"
 
 #include <fstream>
 #include <cmath>
@@ -213,14 +214,18 @@ void BoundaryConditions(const int n1, const int n2, const double MachNumber, con
  * @param R A vector containing the residuals.
  */
 void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<int> &faceToCellsLeft, std::vector<int> &faceToCellsRight, std::vector<double> &length,std::vector<double> &cellvolume, std::vector<double> &xNormal, std::vector<double> &yNormal, std::vector<double> &W,std::vector<double>& R){
-    // Il faut tout d'abord itérer sur les arêtes.
-    // Déclaration de variables
-    double rho_left, u_left, v_left, E_left, p_left;
-    double rho_right, u_right, v_right, E_right, p_right;
-    double rho, u, v, E, p;
-    std::vector<double> F1_Roe(4),F5_Roe(4),F234_Roe(4),A_Roe(4); 
-    double F1_Roe_term,F5_Roe_term ;
-    double rho_Roe, u_Roe, v_Roe, H_Roe, c_Roe, V_Roe, q2_Roe, H_left, H_right,Delta_V,V_c;
+    // Variables declaration
+    double rho_left, u_left, v_left, E_left, p_left; // Left cell properties
+    double rho_right, u_right, v_right, E_right, p_right; // Right cell properties
+    double rho, u, v, E, p; // Roe properties
+    std::vector<double> F1_Roe(4),F5_Roe(4),F234_Roe(4),A_Roe(4); // Roe fluxes
+    double F1_Roe_term,F5_Roe_term; // Roe fluxes terms
+    double rho_Roe, u_Roe, v_Roe, H_Roe, c_Roe, V_Roe, q2_Roe, H_left, H_right,Delta_V,V_c_left,V_c_right; // Roe properties
+    double LAMBDA_c; // One eigenvalue of the Jacobian matrix
+    double Flux[4]; // Flux vector
+
+    // Calculate the speed of sound
+    double speedOfSound = sqrt(fluidProperties[2] * fluidProperties[3] * fluidProperties[4]);
 
     for (int i = 0; i < faceNumber; i++ ){
         // Check if the face is on a side of the domain
@@ -228,73 +233,85 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
             continue;
         }
 
-        // Get les cellules concernés
+        // Get the indexs of the cells on the left and right of the face
         int id_cell_left = faceToCellsLeft[i];
         int id_cell_right = faceToCellsRight[i];
 
-        // on calcule les proprièté au cellules de gauche
+        // Calculate the properties of the left cell
         rho_left = W[4*id_cell_left];
         u_left = W[4*id_cell_left + 1]/W[4*id_cell_left];
         v_left = W[4*id_cell_left + 2]/W[4*id_cell_left];
         E_left = W[4*id_cell_left + 3]/W[4*id_cell_left];
         p_left = (fluidProperties[2]-1)*(W[4*id_cell_left + 3] - 0.5*(rho_left*(u_left*u_left + v_left*v_left)));
+        H_left = (rho_left*E_left + p_left)/rho_left;
+        V_c_left = u_left*xNormal[i] + v_left*yNormal[i];
 
-        //On calcule les proprièté au cellules de droite
+        // Calculate the properties of the right cell
         rho_right = W[4*id_cell_right];
         u_right = W[4*id_cell_right + 1]/W[4*id_cell_right];
         v_right = W[4*id_cell_right + 2]/W[4*id_cell_right];
         E_right = W[4*id_cell_right + 3]/W[4*id_cell_right];
         p_right = (fluidProperties[2]-1)*(W[4*id_cell_right + 3] - 0.5*(rho_right*(u_right*u_right + v_right*v_right)));
+        H_right = (rho_right*E_right + p_right)/rho_right;
+        V_c_right = u_right*xNormal[i] + v_right*yNormal[i];
 
-        // Ensuite, Calculer les propriètés à l'arète
+        // Calculate the properties on the face
         rho = 0.5*(rho_left + rho_right);
         u = 0.5*(u_left + u_right);
         v = 0.5*(v_left + v_right);
         E = 0.5*(E_right + E_left);
         p = 0.5*(p_left + p_right);
-
-        V_c = u*xNormal[i] + v*yNormal[i]; //produit scalaire
-
-        // ADDING ROE CALCULATION
-        // Now we calculate the the properties of Roe
-        rho_Roe = std::sqrt(rho_left*rho_right);
-        u_Roe = (u_left*std::sqrt(rho_left) + u_right*std::sqrt(rho_right)) / (std::sqrt(rho_left) + std::sqrt(rho_right));
-        v_Roe = (v_left*std::sqrt(rho_left) + v_right*std::sqrt(rho_right)) / (std::sqrt(rho_left) + std::sqrt(rho_right));
-        H_left = (rho_left*E_left + p_left)/rho_left;
-        H_right = (rho_right*E_right + p_right)/rho_right;
-        H_Roe = (H_left*std::sqrt(rho_left) + H_right*std::sqrt(rho_right)) / (std::sqrt(rho_left) + std::sqrt(rho_right));
-        q2_Roe = u_Roe*u_Roe + v_Roe*v_Roe;
-        V_Roe = u_Roe * xNormal[i] + v_Roe * yNormal[i];
-        c_Roe = std::sqrt((fluidProperties[2]-1)*(H_Roe-q2_Roe/2));
         Delta_V = (u_right - u_left)*xNormal[i] + (v_right - v_left)*yNormal[i];
 
-        // Now we Build the F1
-        F1_Roe_term = std::abs(V_Roe - c_Roe) * (((p_right-p_left) - rho_Roe*c_Roe*Delta_V)/(2*c_Roe*c_Roe));
+        // ROE CALCULATION
+        // Calculate the properties of Roe
+        rho_Roe = sqrt(rho_left*rho_right);
+        u_Roe = (u_left*sqrt(rho_left) + u_right*sqrt(rho_right)) / (sqrt(rho_left) + sqrt(rho_right));
+        v_Roe = (v_left*sqrt(rho_left) + v_right*sqrt(rho_right)) / (sqrt(rho_left) + sqrt(rho_right));
+        H_Roe = (H_left*sqrt(rho_left) + H_right*sqrt(rho_right)) / (sqrt(rho_left) + sqrt(rho_right));
+        q2_Roe = u_Roe*u_Roe + v_Roe*v_Roe;
+        V_Roe = u_Roe * xNormal[i] + v_Roe * yNormal[i];
+        c_Roe = sqrt((fluidProperties[2]-1)*(H_Roe-q2_Roe/2));
+
+        // Build the F1 Roe term
+        if (abs(V_Roe - c_Roe) <= speedOfSound/10) { // Entropy correction
+            LAMBDA_c = ((V_Roe - c_Roe)*(V_Roe - c_Roe) + (speedOfSound/10)*(speedOfSound/10)) / (2*(speedOfSound/10));
+        } else {
+            LAMBDA_c = abs(V_Roe - c_Roe);
+        }
+        F1_Roe_term = LAMBDA_c * (((p_right-p_left) - rho_Roe*c_Roe*Delta_V)/(2*c_Roe*c_Roe));
         F1_Roe[0] =  F1_Roe_term;
         F1_Roe[1] =  F1_Roe_term*(u_Roe - c_Roe*xNormal[i]);
         F1_Roe[2] =  F1_Roe_term*(v_Roe - c_Roe*yNormal[i]);
         F1_Roe[3] =  F1_Roe_term*(H_Roe - c_Roe*V_Roe);
 
-        //Now we Build F234
-        F234_Roe[0] = V_Roe*(((rho_right-rho_left)- (p_right-p_left)/(c_Roe*c_Roe))*1 + rho_Roe*0);
-        F234_Roe[1] = V_Roe*(((rho_right-rho_left)- (p_right-p_left)/(c_Roe*c_Roe))*u_Roe + rho_Roe*((u_right - u_left) - (Delta_V*xNormal[i])));
-        F234_Roe[2] = V_Roe*(((rho_right-rho_left)- (p_right-p_left)/(c_Roe*c_Roe))*v_Roe + rho_Roe*((v_right - v_left) - (Delta_V*yNormal[i])));
-        F234_Roe[3] = V_Roe*(((rho_right-rho_left)- (p_right-p_left)/(c_Roe*c_Roe))*(q2_Roe/2) + rho_Roe*(u_Roe*(u_right-u_left) + v_Roe*(v_right-v_left) - V_Roe*Delta_V));
+        // Build the F234 Roe terms
+        if (V_Roe <= speedOfSound/10) { // Entropy correction
+            LAMBDA_c = (V_Roe*V_Roe + (speedOfSound/10)*(speedOfSound/10)) / (2*(speedOfSound/10));
+        } else {
+            LAMBDA_c = abs(V_Roe);
+        }
+        F234_Roe[0] = LAMBDA_c*(((rho_right-rho_left)- (p_right-p_left)/(c_Roe*c_Roe))*1 + rho_Roe*0);
+        F234_Roe[1] = LAMBDA_c*(((rho_right-rho_left)- (p_right-p_left)/(c_Roe*c_Roe))*u_Roe + rho_Roe*((u_right - u_left) - (Delta_V*xNormal[i])));
+        F234_Roe[2] = LAMBDA_c*(((rho_right-rho_left)- (p_right-p_left)/(c_Roe*c_Roe))*v_Roe + rho_Roe*((v_right - v_left) - (Delta_V*yNormal[i])));
+        F234_Roe[3] = LAMBDA_c*(((rho_right-rho_left)- (p_right-p_left)/(c_Roe*c_Roe))*(q2_Roe/2) + rho_Roe*(u_Roe*(u_right-u_left) + v_Roe*(v_right-v_left) - V_Roe*Delta_V));
 
-        //Now we Build F5
-        F5_Roe_term = std::abs(V_Roe + c_Roe) * (((p_right+p_left) - rho_Roe*c_Roe*Delta_V)/(2*c_Roe*c_Roe));
+        // Build of F5 Roe term
+        if (abs(V_Roe + c_Roe) <= speedOfSound/10) { // Entropy correction
+            LAMBDA_c = ((V_Roe + c_Roe)*(V_Roe + c_Roe) + (speedOfSound/10)*(speedOfSound/10)) / (2*(speedOfSound/10));
+        } else {
+            LAMBDA_c = abs(V_Roe + c_Roe);
+        }
+        F5_Roe_term = LAMBDA_c * (((p_right-p_left) + rho_Roe*c_Roe*Delta_V)/(2*c_Roe*c_Roe));
         F5_Roe[0] =  F5_Roe_term;
         F5_Roe[1] =  F5_Roe_term*(u_Roe +  c_Roe*xNormal[i]);
         F5_Roe[2] =  F5_Roe_term*(v_Roe + c_Roe*yNormal[i]);
         F5_Roe[3] =  F5_Roe_term*(H_Roe + c_Roe*V_Roe);
 
-
-        // Now we build the A_Roe
-        for (int i = 0; i<A_Roe.size();i++){
-            A_Roe[i] = F1_Roe[i] + F234_Roe[i] + F5_Roe[i];
+        // Build the A_Roe
+        for (int j = 0; j < 4; j++){
+            A_Roe[j] = abs(F1_Roe[j]) + abs(F234_Roe[j]) + abs(F5_Roe[j]);
         }
-
-        // Maintenant on construit F et G, les flux lié respectivement à x et à y
 
         //std::vector<double> F = {
         //xNormal[i], 
@@ -302,41 +319,30 @@ void CalculateResidual( double fluidProperties[5], int faceNumber, std::vector<i
         //0,
         //0};
 
-
+        // Calculate F and G, the fluxes related to the left and right cells
         std::vector<double> F = {
-            rho*V_c, 
-            rho *u*V_c + p*xNormal[i],
-            rho*v*V_c + p*yNormal[i],
-            u*(rho*(E+p)) };
-        // We now substrat the row term, 
-        for (int i = 0; i<A_Roe.size();i++){
-            F[i] -= 0.5*A_Roe[i];
+            0.5*(rho_left*V_c_left), 
+            0.5*(rho_left*u_left*V_c_left + p_left*xNormal[i]),
+            0.5*(rho_left*v_left*V_c_left + p_left*yNormal[i]),
+            0.5*(rho_left*E_left*V_c_left + p_left*V_c_left)};
+        std::vector<double> G = {
+            0.5*(rho_right*V_c_right), 
+            0.5*(rho_right*u_right*V_c_right + p_right*xNormal[i]),
+            0.5*(rho_right*v_right*V_c_right + p_right*yNormal[i]),
+            0.5*(rho_right*E_right*V_c_right + p_right*V_c_right)};
+        for (int j = 0; j < 4; j++){
+            Flux[j] = 0.5*(F[j] + G[j] - A_Roe[j]);
         }
 
-
-        // Finally, we construct the fluxes Flux_normal = xNormal[i] *F + yNormal[i] * G;
-
-
-        for (double &Element : F){
-            Element *= length[i]; // on multiplie flux par face lenght 
-        }
-
-        // now we must calculate the Residu (LC) and add / remove from the face
-        int index_res = 0;
-        for (double &Element : F){
-            double Left_residual = Element/cellvolume[id_cell_left];
-            double Right_residual = Element/cellvolume[id_cell_right];
-            R[4*id_cell_left+index_res] -= Left_residual;
-            R[4*id_cell_right+index_res] += Right_residual;
-            index_res++;
+        // Calculate the residual and add / remove from the adjacent cells
+        for (int j = 0; j < 4; j++){
+            R[4*id_cell_left+j] -= Flux[j]*length[i]/cellvolume[id_cell_left];
+            R[4*id_cell_right+j] += Flux[j]*length[i]/cellvolume[id_cell_left];
         };
-        
-        
-
-    }   
+    }  
 } 
 
-void Euler(double dt ,double t, int n1, int n2, double MachNumber, double AoA, double fluidProperties[5], std::vector<int>& celltype, std::vector<int>& cellToFaces, int faceNumber, int cellNumber, std::vector<double>& cellvolume, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& length, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R){
+void Euler(double dt ,double t, int n1, int n2, double MachNumber, double AoA, double fluidProperties[5], std::vector<int>& celltype, std::vector<int>& cellToFaces, int faceNumber, int cellNumber, std::vector<double>& cellvolume, std::vector<int>& faceToCellsLeft, std::vector<int>& faceToCellsRight, std::vector<double>& length, std::vector<double>& xCoords, std::vector<double>& yCoords, std::vector<double>& xNormal, std::vector<double>& yNormal, std::vector<double>& W, std::vector<double>& R){
     double live_time = 0;
     std::vector<double> W_0;
     std::vector<double> R_0;
@@ -360,16 +366,12 @@ void Euler(double dt ,double t, int n1, int n2, double MachNumber, double AoA, d
         BoundaryConditions(n1, n2, MachNumber, AoA, fluidProperties,celltype, cellToFaces, xNormal, yNormal, W, R);
         R_0 = R;
         for (int i = 0 ; i<cellNumber*4; i++){
-            W[i] = W_0[i]-(dt)*R_0[i]; //W(1)
+            W[i] = W_0[i]+(dt)*R_0[i]; //W(1)
         }
         live_time += dt;
 
-        // Print all the values of W
-        for (int i = 0; i < 4 * cellNumber; i++) {
-            std::cout << "W[" << i << "] = " << W[i] << std::endl;
-        }
-        // Pause the program
-        std::cin.get();
+        std::vector<double> rho, u, v, VMag, E, p;
+        writeProperties(n1, n2, xCoords, yCoords, W, fluidProperties, cellNumber, rho, u, v, VMag, E, p);
 
         convergenceManager(k, cellNumber, R, globalResidual);
         k += 1;

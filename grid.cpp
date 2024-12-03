@@ -249,10 +249,6 @@ void cellVolume(const int n1, const int n2, const int cellNumber, std::vector<do
             c += 1;
         }
     }
-    // Print all the values of volume
-    for (int i = 0; i < cellNumber; i++) {
-        std::cout << "Volume of cell " << i << ": " << volume[i] << std::endl;
-    }
 }
 
 /**

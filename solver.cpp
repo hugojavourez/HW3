@@ -349,7 +349,7 @@ void Euler(double dt ,double t, int n1, int n2, double MachNumber, double AoA, d
 
 
     int k = 0; // Iteration number
-    double globalResidual = 1; // Residual used for the global convergence
+    std::vector<double> globalResidual; // Residual used for the global convergence
 
     // Resizing the vectors
     // W_0.resize(4*cellNumber,0.0);
@@ -373,7 +373,7 @@ void Euler(double dt ,double t, int n1, int n2, double MachNumber, double AoA, d
         std::vector<double> rho, u, v, VMag, E, p;
         writeProperties(n1, n2, xCoords, yCoords, W, fluidProperties, cellNumber, rho, u, v, VMag, E, p);
 
-        convergenceManager(k, cellNumber, R, globalResidual);
+        convergenceManager(k, cellNumber, R_0, globalResidual);
         k += 1;
     }
     std::cout << "End of the simulation" << std::endl;
@@ -388,7 +388,7 @@ void RK4(double dt ,double t, int n1, int n2, double MachNumber, double AoA, dou
     std::vector<double> R_3;
 
     int k = 0; // Iteration number
-    double globalResidual = 1; // Residual used for the global convergence
+    std::vector<double> globalResidual; // Residual used for the global convergence
 
     // Resizing the vectors
     // W_0.resize(4*cellNumber,0.0);

@@ -11,7 +11,7 @@
 /**
  * Parameters of the simulation.
  */
-int n = 9; // Replace with the grid size wanted (9x9, 17x17, etc.)
+int n = 33; // Replace with the grid size wanted (9x9, 17x17, etc.)
 double MachNumber = 2; // Mach number of the flow
 double AoA = 0.0; // Angle of attack in degrees
 

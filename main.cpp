@@ -42,14 +42,10 @@ int main() {
     int n2; // Number of layers
     readCoordinates(filename, n1, n2, xCoords, yCoords);
 
-    std::cout << "Initializing..." << std::endl;
-
     // Determine the connectivity between faces and cells
     std::vector<int> faceToCellsLeft, faceToCellsRight, cellToFaces, faceToNodes;
     int faceNumber = 0, cellNumber = 0;
     connectivity(n1, n2, xCoords, yCoords, faceToCellsLeft, faceToCellsRight, cellToFaces, faceToNodes, faceNumber, cellNumber);
-
-    std::cout << "Initializing..." << std::endl;
 
     // Calculate the volume of each cell
     std::vector<double> volume;

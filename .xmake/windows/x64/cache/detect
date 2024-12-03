@@ -1,29 +1,4 @@
 {
-    find_package_windows_x64_fetch_package_xmake = {
-        ["xmake::eigen_ad4e9e04652248d6872dd8645256ff1c_release_3.4.0_external"] = {
-            version = "3.4.0",
-            sysincludedirs = {
-                [[C:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include]],
-                [[C:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]]
-            },
-            license = "MPL-2.0"
-        }
-    },
-    find_program_msvc_arch_x64_plat_windows_checktoolcxx = {
-        ["cl.exe"] = [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64\cl.exe]]
-    },
-    ["lib.detect.has_flags"] = {
-        ["windows_x64_C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\cl.exe_19.42.34433_cxx_cxflags_-nologo_cl_external_includedir"] = true,
-        ["windows_x64_C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\cl.exe_19.42.34433_cxx_cxflags_-nologo_cl_sourceDependencies"] = true,
-        ["windows_x64_C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\cl.exe_19.42.34433_cxx__-nologo_-O2"] = true,
-        ["windows_x64_C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\cl.exe_19.42.34433_cxx_cxflags_-nologo_-DNDEBUG"] = true
-    },
-    find_program_msvc_arch_x64_plat_windows_checktoolld = {
-        ["link.exe"] = [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64\link.exe]]
-    },
-    find_programver = {
-        ["C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\cl.exe"] = "19.42.34433"
-    },
     find_program_fetch_package_xmake = {
         cmake = false
     },
@@ -31,13 +6,38 @@
         ["cl.exe"] = [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64\cl.exe]]
     },
     find_program = {
-        git = "git",
-        gzip = false,
-        nim = false,
         ["C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\cl.exe"] = [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64\cl.exe]],
-        ping = "ping",
-        ["7z"] = [[C:\Users\javou\scoop\apps\xmake\current\winenv\bin\7z]],
+        nim = false,
         ["cl.exe"] = [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64\cl.exe]],
-        zig = false
+        git = "git",
+        zig = false,
+        ["7z"] = [[C:\Users\javou\scoop\apps\xmake\current\winenv\bin\7z]],
+        ping = "ping",
+        gzip = false
+    },
+    find_program_msvc_arch_x64_plat_windows_checktoolld = {
+        ["link.exe"] = [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64\link.exe]]
+    },
+    find_package_windows_x64_fetch_package_xmake = {
+        ["xmake::eigen_ad4e9e04652248d6872dd8645256ff1c_release_3.4.0_external"] = {
+            license = "MPL-2.0",
+            sysincludedirs = {
+                [[C:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include]],
+                [[C:\Users\javou\AppData\Local\.xmake\packages\e\eigen\3.4.0\ad4e9e04652248d6872dd8645256ff1c\include\eigen3]]
+            },
+            version = "3.4.0"
+        }
+    },
+    find_programver = {
+        ["C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\cl.exe"] = "19.42.34433"
+    },
+    find_program_msvc_arch_x64_plat_windows_checktoolcxx = {
+        ["cl.exe"] = [[C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64\cl.exe]]
+    },
+    ["lib.detect.has_flags"] = {
+        ["windows_x64_C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\cl.exe_19.42.34433_cxx_cxflags_-nologo_cl_external_includedir"] = true,
+        ["windows_x64_C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\cl.exe_19.42.34433_cxx_cxflags_-nologo_-DNDEBUG"] = true,
+        ["windows_x64_C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\cl.exe_19.42.34433_cxx__-nologo_-O2"] = true,
+        ["windows_x64_C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\cl.exe_19.42.34433_cxx_cxflags_-nologo_cl_sourceDependencies"] = true
     }
 }

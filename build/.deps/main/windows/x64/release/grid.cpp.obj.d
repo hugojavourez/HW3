@@ -15,9 +15,6 @@
             "-DNDEBUG"
         }
     },
-    files = {
-        "grid.cpp"
-    },
     depfiles_cl_json = "{\
     \"Version\": \"1.2\",\
     \"Data\": {\
@@ -354,5 +351,8 @@
         \"ImportedModules\": [],\
         \"ImportedHeaderUnits\": []\
     }\
-}"
+}",
+    files = {
+        "grid.cpp"
+    }
 }

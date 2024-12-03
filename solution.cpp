@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <filesystem>
 
 /**
  * Calculates rho, u, v, E and p from the flow variables for all the domain.
@@ -107,41 +108,6 @@ void aerodynamicCoefficients(const int n, const double MachNumber, const double 
 }
 
 /**
- * Writes the flow field to a file in the Tecplot format.
- * 
- * @param n The grid size (nxn).
- * @param xCoords A vector containing the x-coordinates of the nodes.
- * @param yCoords A vector containing the y-coordinates of the nodes.
- * @param faceToNodes A vector containing the index of the nodes forming the face.
- * @param W A vector containing the flow variables.
- * @param techplotFilename The name of the file to write the flow field.
- */
-void techplot(const int n, const double fluidProperties[5], const std::vector<double>& xCoords, const std::vector<double>& yCoords, const std::vector<double>& W, const std::string& techplotFilename) {
-    int totalPoints = n * n;
-    int totalFaces = (n - 1) * (2 * n - 1);
-
-    // Open the file
-    std::ofstream file(techplotFilename);
-
-    // Write the header
-    file << "TITLE = \"Flow field\"" << std::endl;
-    file << "VARIABLES = \"X\", \"Y\", \"Rho\", \"U\", \"V\", \"UVMagnitude\", \"P\"" << std::endl;
-    file << "ZONE T=\"Flow field\", I=" << n << ", J=" << n << ", F=POINT" << std::endl;
-
-    // Loop on the nodes
-    for (int i = 2 * n; i < totalPoints - (2 * n); i++) {
-        // Write the coordinates and the flow variables
-        file << xCoords[i] << " " << yCoords[i] << " " << W[3 * i] << " " << W[3 * i + 1] / W[3 * i] << " " << W[3 * i + 2] / W[3 * i] << " " << sqrt(pow(W[3 * i + 1],2) + pow(W[3 * i + 2],2)) / W[3 * i] << " " << (fluidProperties[2] - 1) * ((W[3 * i + 3] / W[3 * i]) - 0.5 * W[3 * i] * pow(sqrt(pow(W[3 * i + 1],2) + pow(W[3 * i + 2],2)) / W[3 * i],2)) << std::endl;
-    }
-
-    // Close the file
-    file.close();
-
-    // Say that the file was created successfully
-    std::cout << "Tecplot file '" << techplotFilename <<"' created successfully!" << std::endl;
-}
-
-/**
  * Writes the pressure field around the airfoil in function of the x coordinates to a file.
  * 
  * @param n The grid size (nxn).
@@ -195,4 +161,79 @@ void pressureField(const int n, const double fluidProperties[5], const std::vect
 
     // Say that the file was created successfully
     std::cout << "Pressure field file '" << pFieldFilename <<"' created successfully!" << std::endl;
+}
+
+/**
+ * Writes the Tecplot file for the variable.
+ * 
+ * @param filename The name of the file to write.
+ * @param NI
+ * @param NJ
+ * @param X The x-coordinates of the grid.
+ * @param Y The y-coordinates of the grid.
+ * @param variable The variable to write.
+ */
+void WriteTecplotFile(const std::string& filename, int NI, int NJ, const std::vector<double>& X, const std::vector<double>& Y, const std::vector<double>& variable){
+    
+    int NCI = NI - 1;
+    int NCJ = NJ - 1;
+
+    std::cout << "NI: " << NI << std::endl;
+    std::cout << "NJ: " << NJ << std::endl;
+
+    std::ofstream outfile(filename);
+
+    // Write header
+    outfile << "TITLE = \"CFD Simulation Results\"\n";
+    outfile << "VARIABLES = \"X\", \"Y\", \"Variable\" \n";
+    outfile << "ZONE T=\"Flow Field\", I=" << NI << ", J=" << NJ - 4 << ", DATAPACKING=BLOCK\n";
+    outfile << "VARLOCATION=([3-7]=CELLCENTERED)\n";
+
+    // Crite the coordinates
+    for (int idx = 2 * NI; idx < NI * NJ - 2 * NI; ++idx) {
+        outfile << X[idx] << " ";
+    }
+    outfile << "\n";
+
+    for (int idx = 2 * NI; idx < NI * NJ - 2 * NI; ++idx) {
+        outfile << Y[idx] << " ";
+    }
+    outfile << "\n";
+
+    // Write the cell variable
+    auto writeCellVariable = [&](const std::vector<double>& var) {
+        for (int idx = 2 * (NI - 1); idx < NCI * NCJ - 2 * (NI - 1); ++idx) {
+            outfile << var[idx] << " ";
+        }
+        outfile << "\n";
+    };
+    writeCellVariable(variable);
+
+    outfile.close();
+}
+
+/**
+ * Writes the properties of the flow to several files.
+ */
+void writeProperties(const int n1, const int n2, const std::vector<double>& xCoords, const std::vector<double>& yCoords, const std::vector<double>& W, const double fluidProperties[5], const int cellNumber, std::vector<double>& rho, std::vector<double>& u, std::vector<double>& v, std::vector<double>& VMag,std::vector<double>& E,std::vector<double>& p) {
+    // Specify the directory where the file will be created
+    std::string outputDirectory = "../../../../output/";
+    std::filesystem::create_directories(outputDirectory); // Create the directory if it doesn't exist
+
+    // Calculate the properties of the flow
+    calculateProperties(W, fluidProperties, cellNumber, rho, u, v, VMag, E, p);
+
+    // Write the tecplot file for rho, u, v, E and p
+    std::string tecplotFilename = outputDirectory + "rho.dat";
+    std::string tecplotFilename2 = outputDirectory + "u.dat";
+    std::string tecplotFilename3 = outputDirectory + "v.dat";
+    std::string tecplotFilename4 = outputDirectory + "VMag.dat";
+    std::string tecplotFilename5 = outputDirectory + "E.dat";
+    std::string tecplotFilename6 = outputDirectory + "p.dat";
+    WriteTecplotFile(tecplotFilename, n1, n2, xCoords, yCoords, rho);
+    WriteTecplotFile(tecplotFilename2, n1, n2, xCoords, yCoords, u);
+    WriteTecplotFile(tecplotFilename3, n1, n2, xCoords, yCoords, v);
+    WriteTecplotFile(tecplotFilename4, n1, n2, xCoords, yCoords, VMag);
+    WriteTecplotFile(tecplotFilename5, n1, n2, xCoords, yCoords, E);
+    WriteTecplotFile(tecplotFilename6, n1, n2, xCoords, yCoords, p);
 }
